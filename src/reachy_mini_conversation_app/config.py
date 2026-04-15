@@ -172,11 +172,17 @@ class Config:
     HF_HOME = os.getenv("HF_HOME", "./cache")
     LOCAL_VISION_MODEL = os.getenv("LOCAL_VISION_MODEL", "HuggingFaceTB/SmolVLM2-2.2B-Instruct")
     HF_TOKEN = os.getenv("HF_TOKEN")  # Optional, falls back to hf auth login if not set
+    ROBOT_BACKEND = os.getenv("ROBOT_BACKEND", "reachy")
+    ROBOT_EXECUTION_MODE = os.getenv("ROBOT_EXECUTION_MODE", "mock")
+    ROBOT_ENABLE_LIVE = _env_flag("ROBOT_ENABLE_LIVE", default=False)
+    ROBOT_DISABLE_EXTERNAL_TOOLS = _env_flag("ROBOT_DISABLE_EXTERNAL_TOOLS", default=False)
 
     logger.debug(
-        "Backend: %s, Model: %s, HF_HOME: %s, Vision Model: %s",
+        "Backend: %s, Model: %s, Robot Backend: %s, Robot Mode: %s, HF_HOME: %s, Vision Model: %s",
         BACKEND_PROVIDER,
         MODEL_NAME,
+        ROBOT_BACKEND,
+        ROBOT_EXECUTION_MODE,
         HF_HOME,
         LOCAL_VISION_MODEL,
     )
@@ -200,6 +206,28 @@ class Config:
                 "Expected one of: openai, gemini, ollama."
             )
         self.BACKEND_PROVIDER = provider
+
+        robot_backend = self.ROBOT_BACKEND.strip().lower()
+        if robot_backend not in {"reachy", "mock", "embodied_stack"}:
+            raise RuntimeError(
+                f"Config.__init__(): Unsupported ROBOT_BACKEND {self.ROBOT_BACKEND!r}. "
+                "Expected one of: reachy, mock, embodied_stack."
+            )
+        self.ROBOT_BACKEND = robot_backend
+
+        execution_mode = self.ROBOT_EXECUTION_MODE.strip().lower()
+        if execution_mode not in {"mock", "preview", "live"}:
+            raise RuntimeError(
+                f"Config.__init__(): Unsupported ROBOT_EXECUTION_MODE {self.ROBOT_EXECUTION_MODE!r}. "
+                "Expected one of: mock, preview, live."
+            )
+        self.ROBOT_EXECUTION_MODE = execution_mode
+
+        if self.ROBOT_EXECUTION_MODE == "live" and not self.ROBOT_ENABLE_LIVE:
+            logger.warning(
+                "ROBOT_EXECUTION_MODE is set to 'live' but ROBOT_ENABLE_LIVE is false. "
+                "Later adapter passes should enforce live gating explicitly."
+            )
 
         if self.REACHY_MINI_CUSTOM_PROFILE and self.PROFILES_DIRECTORY != DEFAULT_PROFILES_DIRECTORY:
             selected_profile_path = self.PROFILES_DIRECTORY / self.REACHY_MINI_CUSTOM_PROFILE
@@ -257,6 +285,9 @@ class Config:
             )
         else:
             logger.info("'REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY' is not set. Using built-in shared tools only.")
+
+        if self.ROBOT_DISABLE_EXTERNAL_TOOLS:
+            logger.info("ROBOT_DISABLE_EXTERNAL_TOOLS is enabled. External Python tools will be ignored.")
 
 
 config = Config()

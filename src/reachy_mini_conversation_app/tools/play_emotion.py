@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict
 
+from reachy_mini_conversation_app.config import config
 from reachy_mini_conversation_app.tools.core_tools import Tool, ToolDependencies
 
 
@@ -57,6 +58,15 @@ class PlayEmotion(Tool):
 
     async def __call__(self, deps: ToolDependencies, **kwargs: Any) -> Dict[str, Any]:
         """Play a pre-recorded emotion."""
+        if config.ROBOT_BACKEND != "reachy":
+            return {
+                "status": "unsupported",
+                "summary": (
+                    "play_emotion is a Reachy-only legacy tool on this backend. "
+                    "Use set_expression_state or perform_motif instead."
+                ),
+            }
+
         if not EMOTION_AVAILABLE:
             return {"error": "Emotion system not available"}
 

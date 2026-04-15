@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict
 
+from reachy_mini_conversation_app.config import config
 from reachy_mini_conversation_app.tools.core_tools import Tool, ToolDependencies
 
 
@@ -61,6 +62,15 @@ class Dance(Tool):
 
     async def __call__(self, deps: ToolDependencies, **kwargs: Any) -> Dict[str, Any]:
         """Play a named or random dance move once (or repeat). Non-blocking."""
+        if config.ROBOT_BACKEND != "reachy":
+            return {
+                "status": "unsupported",
+                "summary": (
+                    "dance is a Reachy-only legacy tool on this backend. "
+                    "Use perform_motif or another semantic robot-brain tool instead."
+                ),
+            }
+
         if not DANCE_AVAILABLE:
             return {"error": "Dance system not available"}
 

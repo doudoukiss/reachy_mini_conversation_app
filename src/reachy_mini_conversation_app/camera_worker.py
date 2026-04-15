@@ -69,6 +69,16 @@ class CameraWorker:
         self.is_head_tracking_enabled = enabled
         logger.info(f"Head tracking {'enabled' if enabled else 'disabled'}")
 
+    def get_attention_mode(self) -> str:
+        """Return the current semantic attention mode."""
+        if self.head_tracker is None:
+            return "disabled"
+        return "face_tracking" if self.is_head_tracking_enabled else "manual"
+
+    def supports_attention_tracking(self) -> bool:
+        """Return whether this camera worker can actively track attention targets."""
+        return self.head_tracker is not None
+
     def start(self) -> None:
         """Start the camera worker loop in a thread."""
         self._stop_event.clear()

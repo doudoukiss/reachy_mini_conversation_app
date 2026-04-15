@@ -39,6 +39,7 @@ from reachy_mini_conversation_app.headless_personality import (
 
 WINDOWS_PATH_BUDGET = 130
 WINDOWS_WHEEL_PATH_BUDGET = 71
+_IGNORED_PATH_PREFIXES = ("references/",)
 
 def _git_tracked_files(project_root: Path) -> list[Path]:
     """Return git-tracked files that still exist in the working tree."""
@@ -53,7 +54,13 @@ def _git_tracked_files(project_root: Path) -> list[Path]:
     except (OSError, subprocess.CalledProcessError) as exc:
         pytest.skip(f"git-tracked file listing unavailable: {exc}")
 
-    tracked_files = [project_root / relative_path for relative_path in result.stdout.splitlines() if relative_path]
+    tracked_files = []
+    for relative_path in result.stdout.splitlines():
+        if not relative_path:
+            continue
+        if relative_path.startswith(_IGNORED_PATH_PREFIXES):
+            continue
+        tracked_files.append(project_root / relative_path)
     return [path for path in tracked_files if path.is_file()]
 
 

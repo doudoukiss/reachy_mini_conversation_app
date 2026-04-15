@@ -1,0 +1,9 @@
+observe_scene
+report_robot_status
+orient_attention
+set_attention_mode
+set_expression_state
+perform_motif
+stop_behavior
+go_neutral
+do_nothing

@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 from reachy_mini_conversation_app.config import DEFAULT_PROFILES_DIRECTORY, config
+from reachy_mini_conversation_app.robot_brain.capability_catalog import build_prompt_capability_block
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,12 @@ def get_session_instructions() -> str:
     except Exception as e:
         logger.error(f"Failed to load instructions from profile '{profile}': {e}")
         sys.exit(1)
+
+
+def augment_session_instructions(base_instructions: str, *, robot_runtime: object | None = None) -> str:
+    """Append a concise runtime capability summary to the base instructions."""
+    capability_block = build_prompt_capability_block(robot_runtime)
+    return f"{base_instructions.rstrip()}\n\n{capability_block}".strip()
 
 
 def get_session_voice(default: str = "cedar") -> str:

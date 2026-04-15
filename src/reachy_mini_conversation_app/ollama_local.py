@@ -20,7 +20,11 @@ from numpy.typing import NDArray
 from scipy.signal import resample
 
 from reachy_mini_conversation_app.config import config
-from reachy_mini_conversation_app.prompts import get_session_instructions, get_session_voice
+from reachy_mini_conversation_app.prompts import (
+    augment_session_instructions,
+    get_session_instructions,
+    get_session_voice,
+)
 from reachy_mini_conversation_app.providers import get_backend_capabilities
 from reachy_mini_conversation_app.local_audio import (
     LOCAL_TTS_SAMPLE_RATE,
@@ -162,7 +166,15 @@ class OllamaLocalHandler(AsyncStreamHandler):
 
     def _reset_conversation_history(self) -> None:
         """Reset the conversation to the current personality prompt."""
-        self._conversation_messages = [{"role": "system", "content": get_session_instructions()}]
+        self._conversation_messages = [
+            {
+                "role": "system",
+                "content": augment_session_instructions(
+                    get_session_instructions(),
+                    robot_runtime=self.deps.robot_runtime,
+                ),
+            }
+        ]
 
     async def apply_personality(self, profile: str | None) -> str:
         """Apply a new personality and reset local conversation history."""
@@ -324,7 +336,8 @@ class OllamaLocalHandler(AsyncStreamHandler):
                 }
                 self._conversation_messages.append(assistant_message)
 
-                camera_follow_up: dict[str, Any] | None = None
+                image_follow_up: dict[str, Any] | None = None
+                image_tool_name: str | None = None
                 for tool_call in tool_calls:
                     tool_name = tool_call.function.name
                     if not isinstance(tool_name, str):
@@ -345,7 +358,7 @@ class OllamaLocalHandler(AsyncStreamHandler):
                     )
                     tool_result = self._notification_to_result(notification)
                     history_result = dict(tool_result)
-                    if tool_name == "camera" and "b64_im" in history_result:
+                    if "b64_im" in history_result:
                         history_result["b64_im"] = "[image forwarded to the next multimodal user message]"
                     self._conversation_messages.append(
                         {
@@ -368,10 +381,10 @@ class OllamaLocalHandler(AsyncStreamHandler):
                         ),
                     )
 
-                    if tool_name == "camera" and "b64_im" in tool_result:
+                    if "b64_im" in tool_result:
                         self._emit_camera_preview()
                         question = _parse_tool_args(args_json).get("question") or "What is shown in this image?"
-                        camera_follow_up = {
+                        image_follow_up = {
                             "role": "user",
                             "content": [
                                 {
@@ -384,11 +397,12 @@ class OllamaLocalHandler(AsyncStreamHandler):
                                 },
                             ],
                         }
+                        image_tool_name = tool_name
 
-                if camera_follow_up is not None:
-                    self._conversation_messages.append(camera_follow_up)
-                    if "camera" not in tool_exclusions:
-                        tool_exclusions.append("camera")
+                if image_follow_up is not None:
+                    self._conversation_messages.append(image_follow_up)
+                    if image_tool_name is not None and image_tool_name not in tool_exclusions:
+                        tool_exclusions.append(image_tool_name)
                 continue
 
             final_text = message_text or "I don't have a response right now."

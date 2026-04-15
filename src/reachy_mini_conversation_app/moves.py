@@ -323,6 +323,46 @@ class MovementManager:
         """
         self._command_queue.put(("queue_move", move))
 
+    def get_last_commanded_pose(self) -> FullBodyPose:
+        """Return the latest commanded full-body pose."""
+        with self._status_lock:
+            return clone_full_body_pose(self._last_commanded_pose)
+
+    def queue_goto_pose(
+        self,
+        target_head_pose: NDArray[np.float32],
+        *,
+        duration: float = 1.0,
+        target_antennas: Tuple[float, float] = (0.0, 0.0),
+        target_body_yaw: float = 0.0,
+    ) -> None:
+        """Queue a smooth goto move toward a target pose."""
+        from reachy_mini_conversation_app.dance_emotion_moves import GotoQueueMove
+
+        start_head_pose, start_antennas, start_body_yaw = self.get_last_commanded_pose()
+        goto_move = GotoQueueMove(
+            target_head_pose=target_head_pose,
+            start_head_pose=start_head_pose,
+            target_antennas=target_antennas,
+            start_antennas=start_antennas,
+            target_body_yaw=target_body_yaw,
+            start_body_yaw=start_body_yaw,
+            duration=duration,
+        )
+        self.queue_move(goto_move)
+        self.set_moving_state(duration)
+
+    def go_neutral(self, *, duration: float = 1.0) -> None:
+        """Queue a transition back to the neutral Reachy pose."""
+        neutral_head_pose = create_head_pose(0, 0, 0, 0, 0, 0, degrees=True)
+        self.clear_move_queue()
+        self.queue_goto_pose(
+            neutral_head_pose,
+            duration=duration,
+            target_antennas=(-0.1745, 0.1745),
+            target_body_yaw=0.0,
+        )
+
     def clear_move_queue(self) -> None:
         """Stop the active move and discard any queued primary moves.
 

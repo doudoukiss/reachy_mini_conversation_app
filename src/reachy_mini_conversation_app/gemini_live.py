@@ -26,7 +26,11 @@ from numpy.typing import NDArray
 from scipy.signal import resample
 
 from reachy_mini_conversation_app.config import config
-from reachy_mini_conversation_app.prompts import get_session_voice, get_session_instructions
+from reachy_mini_conversation_app.prompts import (
+    augment_session_instructions,
+    get_session_voice,
+    get_session_instructions,
+)
 from reachy_mini_conversation_app.tools.core_tools import (
     ToolDependencies,
     get_tool_specs,
@@ -181,7 +185,10 @@ class GeminiLiveHandler(AsyncStreamHandler):
             logger.info("Set custom profile to %r", profile)
 
             try:
-                _ = get_session_instructions()
+                _ = augment_session_instructions(
+                    get_session_instructions(),
+                    robot_runtime=self.deps.robot_runtime,
+                )
                 _ = get_session_voice()
             except BaseException as e:
                 logger.error("Failed to resolve personality content: %s", e)
@@ -281,7 +288,10 @@ class GeminiLiveHandler(AsyncStreamHandler):
 
     def _build_live_config(self) -> types.LiveConnectConfig:
         """Build the LiveConnectConfig for a Gemini Live session."""
-        instructions = get_session_instructions()
+        instructions = augment_session_instructions(
+            get_session_instructions(),
+            robot_runtime=self.deps.robot_runtime,
+        )
         voice = _resolve_gemini_voice(get_session_voice())
 
         # Convert OpenAI-style tool specs to Gemini function declarations

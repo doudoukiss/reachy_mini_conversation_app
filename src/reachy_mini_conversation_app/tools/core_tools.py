@@ -37,7 +37,6 @@ if not logger.handlers:
 
 
 ALL_TOOLS: Dict[str, "Tool"] = {}
-ALL_TOOL_SPECS: List[Dict[str, Any]] = []
 _TOOLS_INITIALIZED = False
 
 
@@ -58,14 +57,20 @@ def get_concrete_subclasses(base: type[Tool]) -> List[type[Tool]]:
 
 @dataclass
 class ToolDependencies:
-    """External dependencies injected into tools."""
+    """External dependencies injected into tools.
 
-    reachy_mini: ReachyMini
-    movement_manager: Any  # MovementManager from moves.py
+    `robot_runtime` is the forward-compatible semantic abstraction. The
+    Reachy-specific fields remain available during migration so legacy tools keep
+    working while new semantic tools target the runtime instead.
+    """
+
+    reachy_mini: ReachyMini | None
+    movement_manager: Any  # MovementManager from moves.py or a compatibility stub
     # Optional deps
     camera_worker: Any | None = None  # CameraWorker for frame buffering
     vision_processor: Any | None = None
     head_wobbler: Any | None = None  # HeadWobbler for audio-reactive motion
+    robot_runtime: Any | None = None
     motion_duration_s: float = 1.0
 
 
@@ -206,9 +211,13 @@ def _load_profile_tools() -> None:
         if removed:
             logger.info("Skipping runtime-disabled tools: %s", removed)
 
+    external_tools_allowed = not config.ROBOT_DISABLE_EXTERNAL_TOOLS
+    if not external_tools_allowed:
+        logger.info("ROBOT_DISABLE_EXTERNAL_TOOLS enabled: external Python tool modules will be ignored.")
+
     logger.info(f"Found {len(tool_names)} tools to load: {tool_names}")
 
-    if config.AUTOLOAD_EXTERNAL_TOOLS and config.TOOLS_DIRECTORY and config.TOOLS_DIRECTORY.is_dir():
+    if external_tools_allowed and config.AUTOLOAD_EXTERNAL_TOOLS and config.TOOLS_DIRECTORY and config.TOOLS_DIRECTORY.is_dir():
         discovered_external_tools: List[str] = []
         for tool_file in sorted(config.TOOLS_DIRECTORY.glob("*.py")):
             if tool_file.name.startswith("_"):
@@ -234,19 +243,20 @@ def _load_profile_tools() -> None:
         profile_tool_file = config.PROFILES_DIRECTORY / profile / f"{tool_name}.py"
 
         # Profile-local tools live alongside the selected profile on disk
-        try:
-            _load_module_from_file(tool_name, profile_tool_file)
-            profile_scope = "external" if config.PROFILES_DIRECTORY != DEFAULT_PROFILES_PATH else "built-in"
-            logger.info("✓ Loaded %s profile tool: %s", profile_scope, tool_name)
-            loaded = True
-        except MissingToolFileError:
-            logger.debug("No profile-local tool file for '%s' at %s", tool_name, profile_tool_file)
-        except FileNotFoundError as e:
-            profile_error = _format_error(e)
-            logger.error(f"❌ Failed to load profile tool '{tool_name}': {profile_error}")
-        except Exception as e:
-            profile_error = _format_error(e)
-            logger.error(f"❌ Failed to load profile tool '{tool_name}': {profile_error}")
+        if external_tools_allowed:
+            try:
+                _load_module_from_file(tool_name, profile_tool_file)
+                profile_scope = "external" if config.PROFILES_DIRECTORY != DEFAULT_PROFILES_PATH else "built-in"
+                logger.info("✓ Loaded %s profile tool: %s", profile_scope, tool_name)
+                loaded = True
+            except MissingToolFileError:
+                logger.debug("No profile-local tool file for '%s' at %s", tool_name, profile_tool_file)
+            except FileNotFoundError as e:
+                profile_error = _format_error(e)
+                logger.error(f"❌ Failed to load profile tool '{tool_name}': {profile_error}")
+            except Exception as e:
+                profile_error = _format_error(e)
+                logger.error(f"❌ Failed to load profile tool '{tool_name}': {profile_error}")
 
         # Try tools directory if not found in profile
         if not loaded:
@@ -255,7 +265,7 @@ def _load_profile_tools() -> None:
                 source = _try_load_tool(
                     tool_name,
                     module_path=shared_module_path,
-                    fallback_directory=config.TOOLS_DIRECTORY,
+                    fallback_directory=config.TOOLS_DIRECTORY if external_tools_allowed else None,
                     file_subpath=f"{tool_name}.py",
                 )
                 if source == "file":
@@ -274,7 +284,7 @@ def _load_profile_tools() -> None:
 
 def _initialize_tools() -> None:
     """Populate registry once, even if module is imported repeatedly."""
-    global ALL_TOOLS, ALL_TOOL_SPECS, _TOOLS_INITIALIZED
+    global ALL_TOOLS, _TOOLS_INITIALIZED
 
     if _TOOLS_INITIALIZED:
         logger.debug("Tools already initialized; skipping reinitialization.")
@@ -283,7 +293,6 @@ def _initialize_tools() -> None:
     _load_profile_tools()
 
     ALL_TOOLS = {cls.name: cls() for cls in get_concrete_subclasses(Tool)}  # type: ignore[type-abstract]
-    ALL_TOOL_SPECS = [tool.spec() for tool in ALL_TOOLS.values()]
 
     for tool_name, tool in ALL_TOOLS.items():
         logger.info(f"tool registered: {tool_name} - {tool.description}")
@@ -296,7 +305,7 @@ _initialize_tools()
 
 def get_tool_specs(exclusion_list: list[str] = []) -> list[Dict[str, Any]]:
     """Get tool specs, optionally excluding some tools."""
-    return [spec for spec in ALL_TOOL_SPECS if spec.get("name") not in exclusion_list]
+    return [tool.spec() for name, tool in ALL_TOOLS.items() if name not in exclusion_list]
 
 
 def get_chat_tool_specs(exclusion_list: list[str] = []) -> list[Dict[str, Any]]:

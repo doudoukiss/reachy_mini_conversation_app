@@ -6,6 +6,7 @@ import time
 import asyncio
 import argparse
 import threading
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import gradio as gr
@@ -29,37 +30,112 @@ def update_chatbot(chatbot: List[Dict[str, Any]], response: Dict[str, Any]) -> L
     return chatbot
 
 
-def main() -> None:
-    """Entrypoint for the Reachy Mini conversation app."""
-    args, _ = parse_args()
-    run(args)
+@dataclass
+class RobotAppContext:
+    """Runtime context for the selected robot backend."""
+
+    robot: ReachyMini | None
+    robot_adapter: Any | None
+    robot_runtime: Any
+    movement_manager: Any
+    head_wobbler: Any
+    camera_worker: Any | None = None
+    vision_processor: Any | None = None
+    is_simulation: bool = False
 
 
-def run(
-    args: argparse.Namespace,
-    robot: ReachyMini = None,
-    app_stop_event: Optional[threading.Event] = None,
-    settings_app: Optional[FastAPI] = None,
-    instance_path: Optional[str] = None,
-) -> None:
-    """Run the Reachy Mini conversation app."""
-    # Putting these dependencies here makes the dashboard faster to load when the conversation app is installed
-    from reachy_mini_conversation_app.moves import MovementManager
+class NullMovementManager:
+    """Minimal no-op movement manager for mock robot mode."""
+
+    def __init__(self) -> None:
+        self._listening = False
+
+    def start(self) -> None:
+        """Start the movement manager."""
+
+    def stop(self) -> None:
+        """Stop the movement manager."""
+
+    def set_listening(self, listening: bool) -> None:
+        """Track whether the conversation loop is listening."""
+        self._listening = listening
+
+    def is_idle(self) -> bool:
+        """Report whether the mock robot is idle enough for idle prompts."""
+        return not self._listening
+
+    def set_speech_offsets(self, *_args: Any, **_kwargs: Any) -> None:
+        """Ignore speech wobble offsets in mock mode."""
+
+
+class NullHeadWobbler:
+    """Minimal no-op head wobbler for mock robot mode."""
+
+    def start(self) -> None:
+        """Start the head wobbler."""
+
+    def stop(self) -> None:
+        """Stop the head wobbler."""
+
+    def feed(self, _chunk_b64: str) -> None:
+        """Accept a chunk without doing anything."""
+
+    def reset(self) -> None:
+        """Reset wobble state."""
+
+
+def build_robot_runtime(
+    *,
+    robot: ReachyMini | None = None,
+    movement_manager: Any | None = None,
+    camera_worker: Any | None = None,
+    head_wobbler: Any | None = None,
+    vision_processor: Any | None = None,
+) -> Any:
+    """Build the robot runtime for the configured backend."""
     from reachy_mini_conversation_app.config import config
-    from reachy_mini_conversation_app.console import LocalStream
-    from reachy_mini_conversation_app.tools.core_tools import ToolDependencies
-    from reachy_mini_conversation_app.audio.head_wobbler import HeadWobbler
-    from reachy_mini_conversation_app.providers import (
-        get_backend_capabilities,
-        get_backend_provider,
-        get_configured_api_key,
+    from reachy_mini_conversation_app.robot_brain import RobotBrainRuntime, build_robot_adapter
+
+    return RobotBrainRuntime(
+        adapter=build_robot_adapter(
+            config.ROBOT_BACKEND,
+            robot=robot,
+            movement_manager=movement_manager,
+            camera_worker=camera_worker,
+            head_wobbler=head_wobbler,
+            vision_processor=vision_processor,
+        ),
+        default_mode=config.ROBOT_EXECUTION_MODE,
     )
 
-    logger = setup_logger(args.debug)
-    logger.info("Starting Reachy Mini Conversation App")
 
-    if args.no_camera and args.head_tracker is not None:
-        logger.warning("Head tracking disabled: --no-camera flag is set. Remove --no-camera to enable head tracking.")
+def build_robot_app_context(
+    args: argparse.Namespace,
+    logger: Any,
+    *,
+    robot: ReachyMini | None = None,
+    robot_runtime: Any | None = None,
+) -> RobotAppContext:
+    """Build robot-specific runtime dependencies for startup."""
+    # Imported lazily so mock mode stays hardware-free.
+    from reachy_mini_conversation_app.config import config
+
+    if config.ROBOT_BACKEND == "mock":
+        runtime = robot_runtime or build_robot_runtime()
+        if not args.gradio:
+            logger.info("ROBOT_BACKEND=mock selected. Automatically enabling gradio for the mock-first shell.")
+            args.gradio = True
+        return RobotAppContext(
+            robot=None,
+            robot_adapter=getattr(runtime, "adapter", None),
+            robot_runtime=runtime,
+            movement_manager=NullMovementManager(),
+            head_wobbler=NullHeadWobbler(),
+            is_simulation=True,
+        )
+
+    from reachy_mini_conversation_app.audio.head_wobbler import HeadWobbler
+    from reachy_mini_conversation_app.moves import MovementManager
 
     if robot is None:
         try:
@@ -110,15 +186,70 @@ def run(
         current_robot=robot,
         camera_worker=camera_worker,
     )
-
     head_wobbler = HeadWobbler(set_speech_offsets=movement_manager.set_speech_offsets)
-
-    deps = ToolDependencies(
-        reachy_mini=robot,
+    runtime = robot_runtime or build_robot_runtime(
+        robot=robot,
         movement_manager=movement_manager,
         camera_worker=camera_worker,
-        vision_processor=vision_processor,
         head_wobbler=head_wobbler,
+        vision_processor=vision_processor,
+    )
+    return RobotAppContext(
+        robot=robot,
+        robot_adapter=getattr(runtime, "adapter", None),
+        robot_runtime=runtime,
+        movement_manager=movement_manager,
+        head_wobbler=head_wobbler,
+        camera_worker=camera_worker,
+        vision_processor=vision_processor,
+        is_simulation=is_simulation,
+    )
+
+
+def main() -> None:
+    """Entrypoint for the Reachy Mini conversation app."""
+    args, _ = parse_args()
+    run(args)
+
+
+def run(
+    args: argparse.Namespace,
+    robot: ReachyMini | None = None,
+    app_stop_event: Optional[threading.Event] = None,
+    settings_app: Optional[FastAPI] = None,
+    instance_path: Optional[str] = None,
+    robot_runtime: Any | None = None,
+) -> None:
+    """Run the Reachy Mini conversation app."""
+    from reachy_mini_conversation_app.config import config
+    from reachy_mini_conversation_app.console import LocalStream
+    from reachy_mini_conversation_app.tools.core_tools import ToolDependencies
+    from reachy_mini_conversation_app.providers import (
+        get_backend_capabilities,
+        get_backend_provider,
+        get_configured_api_key,
+    )
+
+    logger = setup_logger(args.debug)
+    logger.info("Starting Reachy Mini Conversation App")
+
+    if args.no_camera and args.head_tracker is not None:
+        logger.warning("Head tracking disabled: --no-camera flag is set. Remove --no-camera to enable head tracking.")
+
+    robot_context = build_robot_app_context(
+        args,
+        logger,
+        robot=robot,
+        robot_runtime=robot_runtime,
+    )
+
+    deps = ToolDependencies(
+        reachy_mini=robot_context.robot,
+        movement_manager=robot_context.movement_manager,
+        camera_worker=robot_context.camera_worker,
+        vision_processor=robot_context.vision_processor,
+        head_wobbler=robot_context.head_wobbler,
+        robot_runtime=robot_context.robot_runtime,
     )
     current_file_path = os.path.dirname(os.path.abspath(__file__))
     logger.debug(f"Current file absolute path: {current_file_path}")
@@ -192,16 +323,16 @@ def run(
         # In headless mode, wire settings_app + instance_path to console LocalStream
         stream_manager = LocalStream(
             handler,
-            robot,
+            robot_context.robot,
             settings_app=settings_app,
             instance_path=instance_path,
         )
 
     # Each async service → its own thread/loop
-    movement_manager.start()
-    head_wobbler.start()
-    if camera_worker:
-        camera_worker.start()
+    robot_context.movement_manager.start()
+    robot_context.head_wobbler.start()
+    if robot_context.camera_worker:
+        robot_context.camera_worker.start()
 
     def poll_stop_event() -> None:
         """Poll the stop event to allow graceful shutdown."""
@@ -222,20 +353,21 @@ def run(
     except KeyboardInterrupt:
         logger.info("Keyboard interruption in main thread... closing server.")
     finally:
-        movement_manager.stop()
-        head_wobbler.stop()
-        if camera_worker:
-            camera_worker.stop()
+        robot_context.movement_manager.stop()
+        robot_context.head_wobbler.stop()
+        if robot_context.camera_worker:
+            robot_context.camera_worker.stop()
 
-        # Ensure media is explicitly closed before disconnecting
-        try:
-            robot.media.close()
-        except Exception as e:
-            logger.debug(f"Error closing media during shutdown: {e}")
+        if robot_context.robot is not None:
+            # Ensure media is explicitly closed before disconnecting
+            try:
+                robot_context.robot.media.close()
+            except Exception as e:
+                logger.debug(f"Error closing media during shutdown: {e}")
 
-        # prevent connection to keep alive some threads
-        robot.client.disconnect()
-        time.sleep(1)
+            # prevent connection to keep alive some threads
+            robot_context.robot.client.disconnect()
+            time.sleep(1)
         logger.info("Shutdown complete.")
 
 

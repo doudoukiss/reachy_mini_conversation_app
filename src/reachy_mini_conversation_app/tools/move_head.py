@@ -4,6 +4,7 @@ from typing import Any, Dict, Tuple, Literal
 from reachy_mini.utils import create_head_pose
 from reachy_mini_conversation_app.tools.core_tools import Tool, ToolDependencies
 from reachy_mini_conversation_app.dance_emotion_moves import GotoQueueMove
+from reachy_mini_conversation_app.tools.semantic_helpers import action_result_to_payload
 
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,15 @@ class MoveHead(Tool):
             return {"error": "direction must be a string"}
         direction: Direction = direction_raw  # type: ignore[assignment]
         logger.info("Tool call: move_head direction=%s", direction)
+
+        if deps.robot_runtime is not None:
+            result = await deps.robot_runtime.execute_action(
+                "orient_attention",
+                args={"target": direction, "duration": deps.motion_duration_s},
+            )
+            payload = action_result_to_payload(result)
+            payload["legacy_tool"] = self.name
+            return payload
 
         deltas = self.DELTAS.get(direction, self.DELTAS["front"])
         target = create_head_pose(*deltas, degrees=True)

@@ -29,7 +29,11 @@ from openai.types.realtime.realtime_audio_formats_param import AudioPCM
 from openai.types.realtime.realtime_audio_input_turn_detection_param import ServerVad
 
 from reachy_mini_conversation_app.config import AVAILABLE_VOICES, config
-from reachy_mini_conversation_app.prompts import get_session_voice, get_session_instructions
+from reachy_mini_conversation_app.prompts import (
+    augment_session_instructions,
+    get_session_voice,
+    get_session_instructions,
+)
 from reachy_mini_conversation_app.tools.core_tools import (
     ToolDependencies,
     get_tool_specs,
@@ -158,7 +162,10 @@ class OpenaiRealtimeHandler(AsyncStreamHandler):
             )
 
             try:
-                instructions = get_session_instructions()
+                instructions = augment_session_instructions(
+                    get_session_instructions(),
+                    robot_runtime=self.deps.robot_runtime,
+                )
                 voice = get_session_voice()
             except BaseException as e:  # catch SystemExit from prompt loader without crashing
                 logger.error("Failed to resolve personality content: %s", e)
@@ -462,7 +469,10 @@ class OpenaiRealtimeHandler(AsyncStreamHandler):
             try:
                 session_config = RealtimeSessionCreateRequestParam(
                     type="realtime",
-                    instructions=get_session_instructions(),
+                    instructions=augment_session_instructions(
+                        get_session_instructions(),
+                        robot_runtime=self.deps.robot_runtime,
+                    ),
                     audio=RealtimeAudioConfigParam(
                         input=RealtimeAudioConfigInputParam(
                             format=AudioPCM(type="audio/pcm", rate=self.input_sample_rate),
