@@ -1,0 +1,31 @@
+{
+  "fixture_name": "visible_sign_image",
+  "title": "Visible Sign Image Replay",
+  "description": "A single-frame image-style replay for reading visible text and directional signage.",
+  "source_kind": "image_fixture",
+  "frames": [
+    {
+      "frame_id": "sign-0001",
+      "source_kind": "image_fixture",
+      "clip_offset_ms": 0,
+      "annotations": [
+        {
+          "observation_type": "visible_text",
+          "text_value": "Workshop Room ->",
+          "confidence": 0.9
+        },
+        {
+          "observation_type": "visible_text",
+          "text_value": "Community Events Today",
+          "confidence": 0.83
+        },
+        {
+          "observation_type": "location_anchor",
+          "text_value": "Workshop Corridor Sign",
+          "confidence": 0.82
+        }
+      ],
+      "scene_summary": "A visible sign points toward the workshop room beside a community events noticeboard."
+    }
+  ]
+}

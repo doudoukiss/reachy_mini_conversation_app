@@ -1,0 +1,99 @@
+{
+  "schema_version": "blink_head_semantic_tuning/v1",
+  "profile_name": "robot_head_v1",
+  "calibration_path": "runtime/calibrations/robot_head_live_v1.json",
+  "tuning_lane": "demo_live",
+  "eye_lid_coupling_coefficient": 0.08,
+  "eye_lid_coupling_threshold": 0.24,
+  "brow_asymmetry_correction": 0.02,
+  "neck_pitch_weight": 1.0,
+  "neck_roll_weight": 1.0,
+  "default_motion_envelope": "investor_expressive_sequence_joint_envelope_v1",
+  "default_kinetics_profile": "staged_sequence_slow",
+  "operating_band_policy": {
+    "head_yaw_ratio": 0.95,
+    "neck_pitch_ratio": 0.55,
+    "neck_tilt_ratio": 0.9,
+    "neck_tilt_negative_reference_raw": 2009,
+    "neck_tilt_positive_reference_raw": 2251,
+    "eye_yaw_ratio": 1.0,
+    "eye_pitch_ratio": 1.0,
+    "upper_lid_held_ratio": 1.0,
+    "lower_lid_held_ratio": 1.0,
+    "brow_held_ratio": 1.0,
+    "transient_lid_ratio": 1.0,
+    "transient_brow_ratio": 1.0,
+    "notes": [
+      "investor_v8_structural_then_expressive",
+      "head_and_neck_move_first",
+      "eye_area_reacts_only_after_structural_hold",
+      "neck_pitch_and_tilt_reuse_v7_conservative_baseline",
+      "retuned_slower_and_larger_for_readability"
+    ]
+  },
+  "motion_envelopes": {
+    "investor_expressive_sequence_joint_envelope_v1": {
+      "head_yaw": 0.87,
+      "head_pitch": 0.855,
+      "head_roll": 0.855,
+      "eye_yaw": 1.0,
+      "eye_pitch": 0.95,
+      "upper_lid_deviation": 1.0,
+      "lower_lid_deviation": 1.0,
+      "brow_deviation": 1.0,
+      "transient_upper_lid_deviation": 1.0,
+      "transient_lower_lid_deviation": 1.0,
+      "transient_brow_deviation": 1.0,
+      "pitch_roll_budget": 1.6
+    },
+    "primitive": {
+      "head_yaw": 0.87,
+      "head_pitch": 0.855,
+      "head_roll": 0.855,
+      "eye_yaw": 1.0,
+      "eye_pitch": 0.95,
+      "upper_lid_deviation": 1.0,
+      "lower_lid_deviation": 1.0,
+      "brow_deviation": 1.0,
+      "transient_upper_lid_deviation": 1.0,
+      "transient_lower_lid_deviation": 1.0,
+      "transient_brow_deviation": 1.0,
+      "pitch_roll_budget": 1.6
+    }
+  },
+  "motion_kinetics_profiles": {
+    "staged_sequence_slow": {
+      "speed": 90,
+      "acceleration": 24,
+      "duration_scale": 1.0,
+      "hold_scale": 1.0,
+      "notes": [
+        "investor_v8_staged_sequence_slow_lane"
+      ]
+    },
+    "primitive_slow": {
+      "speed": 100,
+      "acceleration": 32,
+      "duration_scale": 1.0,
+      "hold_scale": 1.0,
+      "notes": [
+        "investor_v8_slow_structural_expressive_lane"
+      ]
+    },
+    "primitive_fast": {
+      "speed": 120,
+      "acceleration": 40,
+      "duration_scale": 1.0,
+      "hold_scale": 1.0,
+      "notes": [
+        "investor_v8_fast_eye_area_accents_only"
+      ]
+    }
+  },
+  "action_overrides": {},
+  "notes": [
+    "investor_expressive_motion_v8",
+    "staged_atomic_structural_then_expressive_sequences",
+    "final_neutral_confirm_required_on_every_cue"
+  ]
+}

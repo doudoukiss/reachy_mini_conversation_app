@@ -1,0 +1,47 @@
+{
+  "show_name": "robot_head_servo_range_showcase_v1",
+  "title": "Blink-AI Robot Head End-to-End Servo Range Showcase",
+  "version": "v1",
+  "session_id": "servo-range-showcase-main",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "servo_range_showcase",
+      "title": "Explicit servo endpoint demo",
+      "investor_claim": "This lane isolates each enabled joint, holds its calibrated minimum, returns to center, then holds its calibrated maximum so the operator can inspect the true saved endpoints on hardware.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 115,
+      "cues": [
+        {
+          "cue_id": "servo_range_showcase_caption",
+          "cue_kind": "caption",
+          "label": "Servo range showcase title",
+          "text": "Explicit servo endpoint demo"
+        },
+        {
+          "cue_id": "servo_range_showcase_run",
+          "cue_kind": "body_range_demo",
+          "label": "Standalone servo range showcase",
+          "payload": {
+            "sequence_name": "servo_range_showcase_v1",
+            "preset_name": "servo_range_showcase_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "servo_range_showcase_hold",
+          "cue_kind": "pause",
+          "label": "Servo range settle hold",
+          "target_duration_ms": 1800
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "profile_name": "robot_head_v1",
+  "profile_version": "blink_head_profile/v1",
+  "transport_boundary_version": "semantic_body_transport/v1",
+  "servo_family": "feetech_sts3032",
+  "baud_rate": 1000000,
+  "auto_scan_baud_rates": [1000000, 115200],
+  "neutral_pose_label": "looking_forward_normal_expression",
+  "default_transition_ms": 160,
+  "minimum_transition_ms": 80,
+  "neutral_recovery_ms": 220,
+  "safe_speed": 120,
+  "safe_speed_ceiling": 120,
+  "safe_acceleration": 40,
+  "safe_idle_torque_off": true,
+  "joints": [
+    { "joint_name": "head_yaw", "servo_ids": [1], "neutral": 2047, "raw_min": 1647, "raw_max": 2447, "positive_direction": "look_right" },
+    { "joint_name": "head_pitch_pair_a", "servo_ids": [2], "neutral": 2047, "raw_min": 1447, "raw_max": 2647, "positive_direction": "head_up_raw_plus" },
+    { "joint_name": "head_pitch_pair_b", "servo_ids": [3], "neutral": 2047, "raw_min": 1447, "raw_max": 2647, "positive_direction": "head_up_raw_minus" },
+    { "joint_name": "lower_lid_left", "servo_ids": [4], "neutral": 2047, "raw_min": 1947, "raw_max": 2347, "positive_direction": "close" },
+    { "joint_name": "upper_lid_left", "servo_ids": [5], "neutral": 2047, "raw_min": 1547, "raw_max": 2247, "positive_direction": "open" },
+    { "joint_name": "lower_lid_right", "servo_ids": [6], "neutral": 2047, "raw_min": 1747, "raw_max": 2147, "positive_direction": "open" },
+    { "joint_name": "upper_lid_right", "servo_ids": [7], "neutral": 2047, "raw_min": 1847, "raw_max": 2547, "positive_direction": "close" },
+    { "joint_name": "eye_pitch", "servo_ids": [8], "neutral": 2047, "raw_min": 1447, "raw_max": 2447, "positive_direction": "look_up" },
+    { "joint_name": "eye_yaw", "servo_ids": [9], "neutral": 2047, "raw_min": 1747, "raw_max": 2347, "positive_direction": "look_right" },
+    { "joint_name": "brow_left", "servo_ids": [10], "neutral": 2047, "raw_min": 1897, "raw_max": 2197, "positive_direction": "raise_brow" },
+    { "joint_name": "brow_right", "servo_ids": [11], "neutral": 2047, "raw_min": 1897, "raw_max": 2197, "positive_direction": "raise_brow_raw_minus" }
+  ],
+  "coupling_rules": [
+    {
+      "name": "neck_pitch_roll",
+      "description": "Servos 2 and 3 share pitch, with asymmetric roll handled by moving only one side for tilt.",
+      "affected_joints": ["head_pitch_pair_a", "head_pitch_pair_b"],
+      "notes": [
+        "Servo 2 raw+ with servo 3 raw- means head up.",
+        "Positive semantic roll is treated as tilt right using servo 2 only.",
+        "Negative semantic roll is treated as tilt left using servo 3 only."
+      ]
+    },
+    {
+      "name": "mirrored_eyelids",
+      "description": "Left and right lid raw directions differ, so semantic open/close must be compiled per joint.",
+      "affected_joints": ["lower_lid_left", "upper_lid_left", "lower_lid_right", "upper_lid_right"]
+    },
+    {
+      "name": "eyes_follow_lids",
+      "description": "Strong eye pitch should pull the upper lids slightly in the same semantic direction.",
+      "affected_joints": ["eye_pitch", "upper_lid_left", "upper_lid_right"]
+    },
+    {
+      "name": "mirrored_brows",
+      "description": "Brows are symmetric semantically but use opposite raw directions on the right side.",
+      "affected_joints": ["brow_left", "brow_right"]
+    }
+  ],
+  "notes": [
+    "Current product shape is an expressive social bust/head with no powered base assumptions.",
+    "Servo IDs and raw limits are isolated here so the brain only speaks in semantic embodiment commands.",
+    "Lane 1 keeps virtual preview authoritative and reserves live writes for explicit operator-gated calibration flows."
+  ],
+  "pending_bench_confirmations": [
+    "Confirm neutral alignment at raw 2047 for all 11 servos on the assembled head.",
+    "Confirm mirrored eyelid and brow directions on powered hardware.",
+    "Confirm safe speed and acceleration limits once external power is available."
+  ]
+}

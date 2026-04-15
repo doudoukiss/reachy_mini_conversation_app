@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blink-AI Operator Login</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260408-tokenless-appliance" />
+  </head>
+  <body>
+    <main class="page-shell login-shell">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Blink-AI</p>
+            <h1>Operator Login</h1>
+          </div>
+          <span class="subtle">Local-first control surface protection</span>
+        </div>
+        <p class="subtle">
+          Enter the operator token from your local environment or runtime auth file. This page is only used for
+          non-appliance service modes that still protect the console and operator-only APIs with local token auth.
+        </p>
+        <div id="auth-status" class="log-card">Loading auth status…</div>
+        <form id="login-form" class="control-stack">
+          <label>Operator token <input id="operator-token-input" type="password" autocomplete="current-password" /></label>
+          <button type="submit">Unlock Console</button>
+        </form>
+        <div id="login-banner" class="banner neutral">Waiting for operator token.</div>
+      </section>
+    </main>
+    <script>
+      const statusEl = document.getElementById("auth-status");
+      const bannerEl = document.getElementById("login-banner");
+      const formEl = document.getElementById("login-form");
+      const inputEl = document.getElementById("operator-token-input");
+
+      function banner(message, tone = "neutral") {
+        bannerEl.textContent = message;
+        bannerEl.className = `banner ${tone}`;
+      }
+
+      async function loadAuthStatus() {
+        const response = await fetch("/api/operator/auth/status");
+        const status = await response.json();
+        statusEl.textContent = JSON.stringify(status, null, 2);
+        if (status.authenticated) {
+          window.location.replace("/console");
+        }
+      }
+
+      formEl.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const token = inputEl.value.trim();
+        if (!token) {
+          banner("Enter the operator token first.", "warning");
+          return;
+        }
+        const response = await fetch("/api/operator/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        if (!response.ok) {
+          banner("Login failed. Check the local token source and try again.", "danger");
+          return;
+        }
+        banner("Console unlocked.", "success");
+        window.location.replace("/console");
+      });
+
+      loadAuthStatus().catch((error) => {
+        banner(`Unable to load auth status: ${error.message}`, "danger");
+      });
+    </script>
+  </body>
+</html>

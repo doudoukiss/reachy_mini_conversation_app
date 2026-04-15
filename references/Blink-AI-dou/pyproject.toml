@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blink-ai"
+version = "0.1.0"
+description = "Blink-AI embodied robotics platform for a nearby Mac brain and Jetson edge runtime"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "httpx>=0.27",
+  "pillow>=11.0",
+  "playwright>=1.52",
+  "prompt_toolkit>=3.0.47",
+  "pyserial>=3.5",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.4",
+  "pyyaml>=6.0",
+  "uvicorn[standard]>=0.30"
+]
+
+[dependency-groups]
+dev = [
+  "hypothesis>=6.112",
+  "pytest>=8.2"
+]
+
+[project.scripts]
+brain-server = "embodied_stack.brain.app:main"
+edge-server = "embodied_stack.edge.app:main"
+desktop-local-loop = "embodied_stack.desktop.cli:local_loop_main"
+blink-appliance = "embodied_stack.desktop.launcher:main"
+local-companion = "embodied_stack.desktop.cli:companion_main"
+local-companion-token = "embodied_stack.desktop.cli:token_main"
+local-companion-doctor = "embodied_stack.desktop.cli:doctor_main"
+local-companion-certify = "embodied_stack.demo.local_companion_certification:main"
+local-companion-burn-in = "embodied_stack.demo.local_companion_certification:burn_in_main"
+local-companion-failure-drills = "embodied_stack.demo.failure_drills:main"
+blink-acceptance = "embodied_stack.demo.acceptance:main"
+local-companion-story = "embodied_stack.desktop.cli:companion_story_main"
+scenario-runner = "embodied_stack.sim.scenario_runner:main"
+smoke-runner = "embodied_stack.demo.smoke:main"
+demo-checks = "embodied_stack.demo.checks:main"
+multimodal-demo-checks = "embodied_stack.demo.multimodal_checks:main"
+local-companion-checks = "embodied_stack.demo.local_companion_checks:main"
+always-on-local-checks = "embodied_stack.demo.always_on_local_checks:main"
+continuous-local-checks = "embodied_stack.demo.continuous_local_checks:main"
+tethered-smoke = "embodied_stack.demo.tethered:main"
+episode-export = "embodied_stack.demo.episodes:main"
+episode-replay = "embodied_stack.demo.replay_harness:main"
+research-export = "embodied_stack.demo.research:main"
+body-calibration = "embodied_stack.body.calibration:main"
+blink-serial-doctor = "embodied_stack.body.serial.doctor:main"
+blink-serial-bench = "embodied_stack.body.serial.bench_suite:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+embodied_stack = [
+  "brain/static/*.html",
+  "brain/static/*.css",
+  "brain/static/*.js",
+  "desktop/native_helpers/*.swift",
+  "body/fixtures/*.json",
+  "body/profiles/*.json",
+  "body/profiles/*.yaml",
+  "demo/data/*.json"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+  "live_serial: requires real serial hardware and BLINK_RUN_LIVE_SERIAL_TESTS=1",
+  "live_serial_motion: requires real serial motion validation and BLINK_RUN_LIVE_SERIAL_MOTION_TESTS=1",
+]

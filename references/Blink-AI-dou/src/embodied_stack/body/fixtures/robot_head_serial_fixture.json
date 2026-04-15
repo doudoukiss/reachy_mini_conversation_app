@@ -1,0 +1,29 @@
+{
+  "fixture_name": "robot_head_serial_fixture",
+  "description": "Recorded-style Feetech/ST fixture for pre-power bring-up and transport replay tests.",
+  "transactions": [
+    {
+      "request_hex": "FF FF 01 02 01 FB",
+      "response_hex": ["FF FF 01 02 00 FC"],
+      "note": "Ping servo 1."
+    },
+    {
+      "request_hex": "FF FF 01 04 02 38 02 BE",
+      "response_hex": ["FF FF 01 04 00 FF 07 F4"],
+      "note": "Read current position from servo 1."
+    },
+    {
+      "request_hex": "FF FF FE 08 83 28 01 01 00 02 00 4A",
+      "response_hex": [],
+      "note": "Torque off servos 1 and 2 using sync write."
+    },
+    {
+      "request_hex": "FF FF FE 06 82 38 02 01 02 3C",
+      "response_hex": [
+        "FF FF 01 04 00 FF 07 F4",
+        "FF FF 02 04 00 FF 07 F3"
+      ],
+      "note": "Sync read present positions for servos 1 and 2."
+    }
+  ]
+}

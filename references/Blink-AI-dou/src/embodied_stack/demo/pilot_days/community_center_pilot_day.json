@@ -1,0 +1,210 @@
+{
+  "simulation_name": "community_center_pilot_day",
+  "description": "Deterministic day-in-the-life replay for the Demo Community Center with opening flow, overlapping visitors, accessibility escalation, schedule-driven prompts, degraded transport, and a recoverable safe-idle period.",
+  "site_name": "Demo Community Center",
+  "venue_content_dir": "pilot_site/demo_community_center",
+  "start_at": "2026-04-02T08:55:00-07:00",
+  "notes": [
+    "Uses the site operations pack to drive opening, quiet-hours, closing, and event reminder behavior.",
+    "Exercises the multi-visitor router, incident workflow, degraded transport handling, and shift-level scoring."
+  ],
+  "steps": [
+    {
+      "label": "pre_open_quiet_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 0,
+      "note": "Before opening hours, Blink-AI should remain quiet."
+    },
+    {
+      "label": "opening_prompt_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 420,
+      "note": "Shortly after opening, the site-level opening prompt may fire."
+    },
+    {
+      "label": "first_visitor_arrives",
+      "action_type": "sensor_event",
+      "event_type": "person_detected",
+      "participant_id": "likely_participant_1",
+      "offset_seconds": 600,
+      "payload": {
+        "people_count": 1
+      }
+    },
+    {
+      "label": "first_visitor_event_question",
+      "action_type": "speech_turn",
+      "participant_id": "likely_participant_1",
+      "offset_seconds": 660,
+      "input_text": "What programs are happening later today?"
+    },
+    {
+      "label": "second_visitor_overlap",
+      "action_type": "sensor_event",
+      "event_type": "person_detected",
+      "offset_seconds": 670,
+      "payload": {
+        "people_count": 2,
+        "participant_ids": [
+          "likely_participant_1",
+          "likely_participant_2"
+        ]
+      }
+    },
+    {
+      "label": "second_visitor_wait_prompt",
+      "action_type": "speech_turn",
+      "participant_id": "likely_participant_2",
+      "offset_seconds": 675,
+      "input_text": "Can you help me too?"
+    },
+    {
+      "label": "first_visitor_follow_up",
+      "action_type": "speech_turn",
+      "participant_id": "likely_participant_1",
+      "offset_seconds": 760,
+      "input_text": "Thanks. Where is Youth Maker Night happening?"
+    },
+    {
+      "label": "first_visitor_leaves",
+      "action_type": "sensor_event",
+      "event_type": "person_left",
+      "participant_id": "likely_participant_1",
+      "offset_seconds": 780,
+      "payload": {
+        "participant_ids": [
+          "likely_participant_1"
+        ]
+      }
+    },
+    {
+      "label": "accessibility_arrival",
+      "action_type": "sensor_event",
+      "event_type": "person_detected",
+      "participant_id": "likely_participant_3",
+      "offset_seconds": 900,
+      "payload": {
+        "people_count": 1
+      }
+    },
+    {
+      "label": "accessibility_escalation_request",
+      "action_type": "speech_turn",
+      "participant_id": "likely_participant_3",
+      "offset_seconds": 930,
+      "input_text": "I need wheelchair access and help getting to the quiet room."
+    },
+    {
+      "label": "operator_acknowledges_ticket",
+      "action_type": "incident_acknowledge",
+      "offset_seconds": 960,
+      "operator_name": "Avery Chen",
+      "note": "Acknowledged accessibility handoff from operator console."
+    },
+    {
+      "label": "operator_assigns_staff",
+      "action_type": "incident_assign",
+      "offset_seconds": 990,
+      "operator_name": "Avery Chen",
+      "assignee_name": "Mina Patel",
+      "note": "Assigned to the on-site accessibility contact."
+    },
+    {
+      "label": "operator_resolves_ticket",
+      "action_type": "incident_resolve",
+      "offset_seconds": 1080,
+      "operator_name": "Avery Chen",
+      "note": "Staff met the visitor near the elevator and guided them to the quiet room.",
+      "payload": {
+        "outcome": "staff_assisted"
+      }
+    },
+    {
+      "label": "quiet_hours_check",
+      "action_type": "shift_tick",
+      "offset_seconds": 15000,
+      "payload": {
+        "people_count": 1
+      },
+      "note": "During quiet hours, proactive prompts should stay suppressed."
+    },
+    {
+      "label": "event_reminder_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 30300,
+      "note": "Ten minutes before Youth Maker Night, the event reminder may fire."
+    },
+    {
+      "label": "event_start_follow_up",
+      "action_type": "speech_turn",
+      "participant_id": "likely_participant_4",
+      "offset_seconds": 30360,
+      "input_text": "What starts soon, and where do I go?"
+    },
+    {
+      "label": "degraded_transport_period",
+      "action_type": "shift_tick",
+      "offset_seconds": 31500,
+      "payload": {
+        "network_ok": false,
+        "transport_ok": false,
+        "edge_transport_state": "degraded"
+      }
+    },
+    {
+      "label": "degraded_transport_recovery",
+      "action_type": "shift_tick",
+      "offset_seconds": 31800,
+      "payload": {
+        "network_ok": true,
+        "transport_ok": true,
+        "edge_transport_state": "healthy",
+        "battery_pct": 72
+      }
+    },
+    {
+      "label": "recoverable_low_battery",
+      "action_type": "sensor_event",
+      "event_type": "low_battery",
+      "offset_seconds": 34800,
+      "payload": {
+        "battery_pct": 14
+      }
+    },
+    {
+      "label": "battery_recovery_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 35400,
+      "payload": {
+        "battery_pct": 36,
+        "network_ok": true,
+        "transport_ok": true,
+        "edge_transport_state": "healthy"
+      }
+    },
+    {
+      "label": "closing_window_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 38400,
+      "note": "Near closing time, the closing reminder may fire.",
+      "payload": {
+        "battery_pct": 40,
+        "network_ok": true,
+        "transport_ok": true,
+        "edge_transport_state": "healthy"
+      }
+    },
+    {
+      "label": "after_close_tick",
+      "action_type": "shift_tick",
+      "offset_seconds": 40200,
+      "note": "After closing, the shift should settle back to a quiet state.",
+      "payload": {
+        "battery_pct": 40,
+        "network_ok": true,
+        "transport_ok": true,
+        "edge_transport_state": "healthy"
+      }
+    }
+  ]
+}

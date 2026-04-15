@@ -1,0 +1,30 @@
+{
+  "fixture_name": "approach_and_greet",
+  "title": "Approach And Greet Replay",
+  "description": "A short clip-style replay showing a visitor approaching the robot from the lobby entrance.",
+  "source_kind": "video_file_replay",
+  "frames": [
+    {
+      "frame_id": "approach-0001",
+      "clip_offset_ms": 0,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 1,
+          "confidence": 0.95
+        },
+        {
+          "observation_type": "engagement_estimate",
+          "text_value": "approaching_robot",
+          "confidence": 0.8
+        },
+        {
+          "observation_type": "location_anchor",
+          "text_value": "Front Desk",
+          "confidence": 0.86
+        }
+      ],
+      "scene_summary": "One visitor is approaching the robot near the front desk."
+    }
+  ]
+}

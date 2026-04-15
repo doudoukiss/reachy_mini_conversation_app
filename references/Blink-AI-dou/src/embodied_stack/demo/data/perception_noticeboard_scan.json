@@ -1,0 +1,34 @@
+{
+  "fixture_name": "noticeboard_scan",
+  "title": "Noticeboard Scan Replay",
+  "description": "A replayable scene focused on visible signage and location anchors for wayfinding demos.",
+  "frames": [
+    {
+      "frame_id": "notice-0001",
+      "clip_offset_ms": 0,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 0,
+          "confidence": 0.92
+        },
+        {
+          "observation_type": "visible_text",
+          "text_value": "Workshop Room ->",
+          "confidence": 0.86
+        },
+        {
+          "observation_type": "visible_text",
+          "text_value": "Community Events Today",
+          "confidence": 0.81
+        },
+        {
+          "observation_type": "location_anchor",
+          "text_value": "Workshop Corridor Sign",
+          "confidence": 0.83
+        }
+      ],
+      "scene_summary": "No people are visible. The frame shows a sign pointing toward the workshop room and a community events noticeboard."
+    }
+  ]
+}

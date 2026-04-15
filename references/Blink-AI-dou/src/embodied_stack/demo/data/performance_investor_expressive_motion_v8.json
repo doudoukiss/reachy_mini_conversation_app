@@ -1,0 +1,365 @@
+{
+  "show_name": "investor_expressive_motion_v8",
+  "title": "Blink-AI Investor Expressive Motif Proof V8",
+  "version": "v8",
+  "session_id": "investor-expressive-motion-v8",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "attentive_notice_right",
+      "title": "Attentive notice right",
+      "investor_claim": "The head turns first, then the face responds in sequence, then each expressive layer releases before the head returns.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "attentive_notice_right_caption",
+          "cue_kind": "caption",
+          "label": "Attentive notice right title",
+          "text": "Attentive notice right"
+        },
+        {
+          "cue_id": "attentive_notice_right_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Attentive notice right motif",
+          "expressive_motif": {
+            "motif_name": "attentive_notice_right"
+          }
+        },
+        {
+          "cue_id": "attentive_notice_right_hold",
+          "cue_kind": "pause",
+          "label": "Attentive notice right settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "attentive_notice_left",
+      "title": "Attentive notice left",
+      "investor_claim": "The same structural-first logic works symmetrically on the left.",
+      "target_start_seconds": 18,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "attentive_notice_left_caption",
+          "cue_kind": "caption",
+          "label": "Attentive notice left title",
+          "text": "Attentive notice left"
+        },
+        {
+          "cue_id": "attentive_notice_left_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Attentive notice left motif",
+          "expressive_motif": {
+            "motif_name": "attentive_notice_left"
+          }
+        },
+        {
+          "cue_id": "attentive_notice_left_hold",
+          "cue_kind": "pause",
+          "label": "Attentive notice left settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "guarded_close_right",
+      "title": "Guarded close right",
+      "investor_claim": "The eyes stay closed while the brows frown and release, proving the runtime can hold one expressive state while another changes.",
+      "target_start_seconds": 36,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "guarded_close_right_caption",
+          "cue_kind": "caption",
+          "label": "Guarded close right title",
+          "text": "Guarded close right"
+        },
+        {
+          "cue_id": "guarded_close_right_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Guarded close right motif",
+          "expressive_motif": {
+            "motif_name": "guarded_close_right"
+          }
+        },
+        {
+          "cue_id": "guarded_close_right_hold",
+          "cue_kind": "pause",
+          "label": "Guarded close right settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "guarded_close_left",
+      "title": "Guarded close left",
+      "investor_claim": "The same held-state pattern works symmetrically on the left.",
+      "target_start_seconds": 54,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "guarded_close_left_caption",
+          "cue_kind": "caption",
+          "label": "Guarded close left title",
+          "text": "Guarded close left"
+        },
+        {
+          "cue_id": "guarded_close_left_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Guarded close left motif",
+          "expressive_motif": {
+            "motif_name": "guarded_close_left"
+          }
+        },
+        {
+          "cue_id": "guarded_close_left_hold",
+          "cue_kind": "pause",
+          "label": "Guarded close left settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "curious_lift",
+      "title": "Curious lift",
+      "investor_claim": "A conservative upward structural move settles first, then the eye area interprets it.",
+      "target_start_seconds": 72,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "curious_lift_caption",
+          "cue_kind": "caption",
+          "label": "Curious lift title",
+          "text": "Curious lift"
+        },
+        {
+          "cue_id": "curious_lift_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Curious lift motif",
+          "expressive_motif": {
+            "motif_name": "curious_lift"
+          }
+        },
+        {
+          "cue_id": "curious_lift_hold",
+          "cue_kind": "pause",
+          "label": "Curious lift settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "reflective_lower",
+      "title": "Reflective lower",
+      "investor_claim": "The robot lowers first, then smaller facial movements turn the pose into a readable reflective beat.",
+      "target_start_seconds": 90,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "reflective_lower_caption",
+          "cue_kind": "caption",
+          "label": "Reflective lower title",
+          "text": "Reflective lower"
+        },
+        {
+          "cue_id": "reflective_lower_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Reflective lower motif",
+          "expressive_motif": {
+            "motif_name": "reflective_lower"
+          }
+        },
+        {
+          "cue_id": "reflective_lower_hold",
+          "cue_kind": "pause",
+          "label": "Reflective lower settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "skeptical_tilt_right",
+      "title": "Skeptical tilt right",
+      "investor_claim": "A right tilt sets the posture, then the eyes and one brow add skepticism without simultaneous structural motion.",
+      "target_start_seconds": 108,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "skeptical_tilt_right_caption",
+          "cue_kind": "caption",
+          "label": "Skeptical tilt right title",
+          "text": "Skeptical tilt right"
+        },
+        {
+          "cue_id": "skeptical_tilt_right_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Skeptical tilt right motif",
+          "expressive_motif": {
+            "motif_name": "skeptical_tilt_right"
+          }
+        },
+        {
+          "cue_id": "skeptical_tilt_right_hold",
+          "cue_kind": "pause",
+          "label": "Skeptical tilt right settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "empathetic_tilt_left",
+      "title": "Empathetic tilt left",
+      "investor_claim": "A left tilt becomes empathetic only after the facial layer responds in sequence.",
+      "target_start_seconds": 126,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "empathetic_tilt_left_caption",
+          "cue_kind": "caption",
+          "label": "Empathetic tilt left title",
+          "text": "Empathetic tilt left"
+        },
+        {
+          "cue_id": "empathetic_tilt_left_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Empathetic tilt left motif",
+          "expressive_motif": {
+            "motif_name": "empathetic_tilt_left"
+          }
+        },
+        {
+          "cue_id": "empathetic_tilt_left_hold",
+          "cue_kind": "pause",
+          "label": "Empathetic tilt left settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "playful_peek_right",
+      "title": "Playful peek right",
+      "investor_claim": "A side turn, a held wink, and a brow lift build a readable playful expression instead of random servo activity.",
+      "target_start_seconds": 144,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "playful_peek_right_caption",
+          "cue_kind": "caption",
+          "label": "Playful peek right title",
+          "text": "Playful peek right"
+        },
+        {
+          "cue_id": "playful_peek_right_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Playful peek right motif",
+          "expressive_motif": {
+            "motif_name": "playful_peek_right"
+          }
+        },
+        {
+          "cue_id": "playful_peek_right_hold",
+          "cue_kind": "pause",
+          "label": "Playful peek right settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "playful_peek_left",
+      "title": "Playful peek left",
+      "investor_claim": "The same playful logic reads cleanly on the left.",
+      "target_start_seconds": 162,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "playful_peek_left_caption",
+          "cue_kind": "caption",
+          "label": "Playful peek left title",
+          "text": "Playful peek left"
+        },
+        {
+          "cue_id": "playful_peek_left_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Playful peek left motif",
+          "expressive_motif": {
+            "motif_name": "playful_peek_left"
+          }
+        },
+        {
+          "cue_id": "playful_peek_left_hold",
+          "cue_kind": "pause",
+          "label": "Playful peek left settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "bright_reengage",
+      "title": "Bright reengage",
+      "investor_claim": "A moderate turn leads the motion, then the lids and brows deliver the brighter emotional read.",
+      "target_start_seconds": 180,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "bright_reengage_caption",
+          "cue_kind": "caption",
+          "label": "Bright reengage title",
+          "text": "Bright reengage"
+        },
+        {
+          "cue_id": "bright_reengage_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Bright reengage motif",
+          "expressive_motif": {
+            "motif_name": "bright_reengage"
+          }
+        },
+        {
+          "cue_id": "bright_reengage_hold",
+          "cue_kind": "pause",
+          "label": "Bright reengage settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    },
+    {
+      "segment_id": "doubtful_side_glance",
+      "title": "Doubtful side glance",
+      "investor_claim": "A restrained side posture plus a delayed brow reaction reads as doubt rather than arbitrary joint motion.",
+      "target_start_seconds": 198,
+      "target_duration_seconds": 18,
+      "cues": [
+        {
+          "cue_id": "doubtful_side_glance_caption",
+          "cue_kind": "caption",
+          "label": "Doubtful side glance title",
+          "text": "Doubtful side glance"
+        },
+        {
+          "cue_id": "doubtful_side_glance_run",
+          "cue_kind": "body_expressive_motif",
+          "label": "Doubtful side glance motif",
+          "expressive_motif": {
+            "motif_name": "doubtful_side_glance"
+          }
+        },
+        {
+          "cue_id": "doubtful_side_glance_hold",
+          "cue_kind": "pause",
+          "label": "Doubtful side glance settle hold",
+          "target_duration_ms": 5500
+        }
+      ]
+    }
+  ]
+}

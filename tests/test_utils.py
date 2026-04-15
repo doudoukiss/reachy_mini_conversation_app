@@ -1,7 +1,9 @@
 """Tests for utility helpers."""
 
 import argparse
+import sys
 from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
 
 import pytest
 
@@ -19,12 +21,12 @@ def test_initialize_camera_and_vision_propagates_local_vision_init_failures() ->
         local_vision=True,
     )
 
+    fake_local_vision = SimpleNamespace(
+        initialize_vision_processor=MagicMock(side_effect=RuntimeError("Vision processor initialization failed"))
+    )
     with patch("reachy_mini_conversation_app.utils.CameraWorker") as mock_camera_worker, \
          patch("reachy_mini_conversation_app.utils.subprocess.run", return_value=MagicMock(returncode=0)), \
-         patch(
-             "reachy_mini_conversation_app.vision.local_vision.initialize_vision_processor",
-             side_effect=RuntimeError("Vision processor initialization failed"),
-         ):
+         patch.dict(sys.modules, {"reachy_mini_conversation_app.vision.local_vision": fake_local_vision}):
         with pytest.raises(RuntimeError, match="Vision processor initialization failed"):
             initialize_camera_and_vision(args, MagicMock())
 

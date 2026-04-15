@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blink-AI Companion Test</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260408-tokenless-appliance" />
+  </head>
+  <body>
+    <main class="layout single-column-layout">
+      <section class="column primary">
+        <article class="panel banner-panel">
+          <div id="companion-test-banner" class="banner neutral">Companion test page ready.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h1>Companion Test</h1>
+            <span class="subtle">Lightweight browser page for testing intelligence directly.</span>
+          </div>
+          <div id="companion-runtime-summary" class="preview-box">Loading runtime summary…</div>
+          <div class="form-grid">
+            <label>Session ID <input id="companion-session-id" value="companion-test" /></label>
+            <label>User ID <input id="companion-user-id" value="visitor-001" /></label>
+          </div>
+          <label>
+            Voice Mode
+            <select id="companion-voice-mode">
+              <option value="stub_demo">stub_demo</option>
+              <option value="macos_say">macos_say</option>
+            </select>
+          </label>
+          <label class="checkbox-row">
+            <input id="companion-speak-reply" type="checkbox" />
+            <span>Speak reply when available</span>
+          </label>
+          <div class="button-row">
+            <button id="companion-refresh-btn" class="secondary">Refresh Status</button>
+            <button id="companion-open-console-btn" class="secondary">Open Full Console</button>
+          </div>
+        </article>
+
+        <article class="panel grow">
+          <div class="panel-header">
+            <h2>Conversation</h2>
+            <span class="subtle">Type directly to the companion.</span>
+          </div>
+          <div id="companion-transcript" class="transcript-list"></div>
+          <label>
+            Your Message
+            <textarea id="companion-input" rows="5" placeholder="Ask the companion something real."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="companion-send-btn">Send</button>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script src="/console/static/companion_test.js?v=20260408-tokenless-appliance" defer></script>
+  </body>
+</html>

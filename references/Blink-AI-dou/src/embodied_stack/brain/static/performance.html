@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blink-AI Deterministic Investor Performance</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260409-investor-performance" />
+    <script defer src="/console/static/presence_shell.js?v=20260409-investor-performance"></script>
+    <script defer src="/console/static/performance.js?v=20260409-investor-performance"></script>
+  </head>
+  <body class="presence-page performance-page">
+    <header class="topbar presence-topbar performance-topbar">
+      <div>
+        <p class="eyebrow">Deterministic Investor Performance Mode</p>
+        <h1 id="performance-title">Blink-AI Investor Performance</h1>
+        <p id="performance-subtitle">Thin deterministic show layer around the same terminal-first, local-first companion runtime.</p>
+      </div>
+      <div class="control-stack">
+        <div class="button-row">
+          <span id="performance-show-pill" class="pill">investor_expressive_motion_v8</span>
+          <span id="performance-run-pill" class="pill">idle</span>
+          <span id="performance-degraded-badge" class="pill hidden">Degraded</span>
+        </div>
+        <div class="button-row">
+          <button id="performance-refresh-btn" class="secondary">Refresh</button>
+          <button id="performance-stop-btn" class="secondary hidden">Stop Run</button>
+          <a id="performance-console-link" class="button-link secondary" href="/console" target="_blank" rel="noreferrer">Open Console</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="presence-layout performance-layout">
+      <section class="panel">
+        <div class="meta-row">
+          <strong id="performance-segment-title">Waiting for show state</strong>
+          <span id="performance-segment-clock">00:00</span>
+        </div>
+        <div id="performance-investor-claim" class="presence-detail performance-claim">
+          The projector page will follow the active or latest investor performance run.
+        </div>
+        <div id="performance-prompt" class="presence-detail performance-prompt hidden">
+          Off-stage prompt will appear here when the current chapter needs one.
+        </div>
+        <div id="performance-shell-window" class="presence-shell-window" data-surface-state="idle" data-motion-hint="settled">
+          <div class="presence-stage-glow"></div>
+          <div class="presence-stage-floor"></div>
+          <div class="presence-head">
+            <div class="presence-face">
+              <div class="presence-brow left"></div>
+              <div class="presence-brow right"></div>
+              <div class="presence-eye left">
+                <div class="presence-pupil"></div>
+              </div>
+              <div class="presence-eye right">
+                <div class="presence-pupil"></div>
+              </div>
+              <div class="presence-mouth"></div>
+            </div>
+          </div>
+        </div>
+        <div id="performance-caption" class="presence-detail performance-caption">
+          Start the show from the terminal with <code>uv run local-companion performance-show investor_expressive_motion_v8</code> or from the operator API.
+        </div>
+        <div id="performance-status-line" class="subtle">
+          This surface stays tied to the same character runtime as the terminal companion.
+        </div>
+        <div id="performance-config-summary" class="subtle">
+          Proof mode, language, narration voice, and projection mode will appear here when a run starts.
+        </div>
+        <div id="performance-projection-summary" class="subtle">
+          Projection status will appear here when a show run starts.
+        </div>
+        <div id="performance-motion-summary" class="subtle">
+          Executed frame and peak-pose details will appear here when the active cue drives body motion.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Proof</h2>
+        <div id="performance-proof-grid" class="performance-proof-grid"></div>
+
+        <div class="subsection">
+          <h3>Run State</h3>
+          <div id="performance-run-summary" class="subtle">
+            No run is active yet.
+          </div>
+          <div id="performance-timing-summary" class="subtle">
+            Timing details will appear here when a run starts.
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>Artifacts</h3>
+          <div id="performance-artifact-summary" class="subtle">
+            Artifacts will appear here when a run completes or degrades.
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

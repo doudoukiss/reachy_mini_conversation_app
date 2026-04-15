@@ -1,0 +1,107 @@
+{
+  "show_name": "investor_brow_motion_v6",
+  "title": "Blink-AI Investor Brow Motion Proof V6",
+  "version": "v6",
+  "session_id": "investor-brow-motion-v6",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "brows_both_v6",
+      "title": "Focused both-brows proof",
+      "investor_claim": "This investor lane demonstrates both brows together with a lower-to-raise sweep under one atomic body-range animation.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 36,
+      "cues": [
+        {
+          "cue_id": "brows_both_v6_caption",
+          "cue_kind": "caption",
+          "label": "Both brows V6 title",
+          "text": "Focused both-brows proof"
+        },
+        {
+          "cue_id": "brows_both_v6_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic both-brows investor V6 motion run",
+          "payload": {
+            "sequence_name": "investor_brows_both_v6",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "brows_both_v6_hold",
+          "cue_kind": "pause",
+          "label": "Both brows V6 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "brow_left_v6",
+      "title": "Focused left-brow proof",
+      "investor_claim": "This investor lane demonstrates the left brow alone with a lower-to-raise sweep under one atomic body-range animation.",
+      "target_start_seconds": 36,
+      "target_duration_seconds": 36,
+      "cues": [
+        {
+          "cue_id": "brow_left_v6_caption",
+          "cue_kind": "caption",
+          "label": "Left brow V6 title",
+          "text": "Focused left-brow proof"
+        },
+        {
+          "cue_id": "brow_left_v6_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic left-brow investor V6 motion run",
+          "payload": {
+            "sequence_name": "investor_brow_left_v6",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "brow_left_v6_hold",
+          "cue_kind": "pause",
+          "label": "Left brow V6 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "brow_right_v6",
+      "title": "Focused right-brow proof",
+      "investor_claim": "This investor lane demonstrates the right brow alone with a lower-to-raise sweep under one atomic body-range animation.",
+      "target_start_seconds": 72,
+      "target_duration_seconds": 36,
+      "cues": [
+        {
+          "cue_id": "brow_right_v6_caption",
+          "cue_kind": "caption",
+          "label": "Right brow V6 title",
+          "text": "Focused right-brow proof"
+        },
+        {
+          "cue_id": "brow_right_v6_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic right-brow investor V6 motion run",
+          "payload": {
+            "sequence_name": "investor_brow_right_v6",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "brow_right_v6_hold",
+          "cue_kind": "pause",
+          "label": "Right brow V6 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "blink_head_calibration/v1",
+  "profile_name": "robot_head_v1",
+  "profile_path": "src/embodied_stack/body/profiles/robot_head_v1.json",
+  "transport_status": {
+    "mode": "dry_run",
+    "port": null,
+  "baud_rate": 1000000,
+    "timeout_seconds": 0.2,
+    "healthy": true,
+    "confirmed_live": false,
+    "last_error": null,
+    "transaction_count": 0
+  },
+  "joint_records": [
+    { "joint_name": "head_yaw", "servo_id": 1, "neutral": 2047, "raw_min": 1647, "raw_max": 2447, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "head_pitch_pair_a", "servo_id": 2, "neutral": 2047, "raw_min": 1447, "raw_max": 2647, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "head_pitch_pair_b", "servo_id": 3, "neutral": 2047, "raw_min": 1447, "raw_max": 2647, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "lower_lid_left", "servo_id": 4, "neutral": 2047, "raw_min": 1947, "raw_max": 2347, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "upper_lid_left", "servo_id": 5, "neutral": 2047, "raw_min": 1547, "raw_max": 2247, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "lower_lid_right", "servo_id": 6, "neutral": 2047, "raw_min": 1747, "raw_max": 2147, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "upper_lid_right", "servo_id": 7, "neutral": 2047, "raw_min": 1847, "raw_max": 2547, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "eye_pitch", "servo_id": 8, "neutral": 2047, "raw_min": 1447, "raw_max": 2447, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "eye_yaw", "servo_id": 9, "neutral": 2047, "raw_min": 1747, "raw_max": 2347, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "brow_left", "servo_id": 10, "neutral": 2047, "raw_min": 1897, "raw_max": 2197, "current_position": null, "error": "template_pre_power" },
+    { "joint_name": "brow_right", "servo_id": 11, "neutral": 2047, "raw_min": 1897, "raw_max": 2197, "current_position": null, "error": "template_pre_power" }
+  ],
+  "notes": [
+    "This file is a template, not bench-captured data.",
+    "Replace current_position and error fields only after powered bring-up."
+  ]
+}

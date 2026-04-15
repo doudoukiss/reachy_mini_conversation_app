@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blink-AI Character Presence</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260409-character-presence-shell" />
+    <script defer src="/console/static/presence_shell.js?v=20260409-character-presence-shell"></script>
+    <script defer src="/console/static/presence.js?v=20260409-character-presence-shell"></script>
+  </head>
+  <body class="presence-page">
+    <header class="topbar presence-topbar">
+      <div>
+        <p class="eyebrow">Terminal-First Companion</p>
+        <h1>Blink-AI Character Presence</h1>
+        <p>Optional lightweight shell for the same local-first companion runtime. The terminal remains the primary surface.</p>
+      </div>
+      <div class="control-stack">
+        <label>
+          Session ID
+          <input id="presence-session-id" placeholder="local-companion-live" />
+        </label>
+        <div class="button-row">
+          <button id="presence-refresh-btn" class="secondary">Refresh</button>
+          <a id="presence-console-link" class="button-link secondary" href="/console" target="_blank" rel="noreferrer">Open Console</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="presence-layout">
+      <section class="panel">
+        <div class="meta-row">
+          <strong id="presence-headline">Settled</strong>
+          <span id="presence-surface-state">idle</span>
+        </div>
+        <div id="presence-shell-window" class="presence-shell-window" data-surface-state="idle" data-motion-hint="settled">
+          <div class="presence-stage-glow"></div>
+          <div class="presence-stage-floor"></div>
+          <div id="presence-head" class="presence-head">
+            <div class="presence-face">
+              <div class="presence-brow left"></div>
+              <div class="presence-brow right"></div>
+              <div class="presence-eye left">
+                <div class="presence-pupil"></div>
+              </div>
+              <div class="presence-eye right">
+                <div class="presence-pupil"></div>
+              </div>
+              <div class="presence-mouth"></div>
+            </div>
+          </div>
+        </div>
+        <div id="presence-detail" class="presence-detail">Waiting for character runtime state.</div>
+        <div id="presence-status-line" class="subtle">This shell mirrors the same fast loop and optional embodiment semantics as the terminal companion.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Semantic Projection</h2>
+        <div class="status-grid presence-status-grid">
+          <div class="status-chip">
+            <span class="label">Expression</span>
+            <span id="presence-expression">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Gaze</span>
+            <span id="presence-gaze">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Gesture</span>
+            <span id="presence-gesture">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Animation</span>
+            <span id="presence-animation">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Warmth</span>
+            <span id="presence-warmth">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Curiosity</span>
+            <span id="presence-curiosity">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Presence Runtime</span>
+            <span id="presence-runtime-state">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Voice Loop</span>
+            <span id="presence-voice-state">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Initiative</span>
+            <span id="presence-initiative-state">-</span>
+          </div>
+          <div class="status-chip">
+            <span class="label">Slow Path</span>
+            <span id="presence-slow-path">-</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>Source Signals</h3>
+          <div id="presence-source-signals" class="compact-tag-list"></div>
+        </div>
+
+        <details class="fold-inline" open>
+          <summary>Pose</summary>
+          <pre id="presence-pose-json" class="json-block compact">Loading...</pre>
+        </details>
+      </section>
+    </main>
+  </body>
+</html>

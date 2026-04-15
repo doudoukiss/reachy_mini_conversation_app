@@ -1,0 +1,10 @@
+[
+  {
+    "key": "general_feedback",
+    "prompt": "I can collect your feedback in three parts: what happened, what outcome you wanted, and how urgent it feels."
+  },
+  {
+    "key": "event_feedback",
+    "prompt": "For event feedback, tell me the event name, what worked well, and one thing staff should improve."
+  }
+]

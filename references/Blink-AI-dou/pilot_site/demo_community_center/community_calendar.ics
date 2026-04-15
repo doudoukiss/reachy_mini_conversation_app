@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Blink-AI//Demo Community Center//EN
+BEGIN:VEVENT
+UID:family_build_day
+DTSTART:20260408T170000
+DTEND:20260408T190000
+SUMMARY:Family Build Day
+LOCATION:Maker Lab
+DESCRIPTION:Drop-in family prototyping session with mentors.
+END:VEVENT
+END:VCALENDAR

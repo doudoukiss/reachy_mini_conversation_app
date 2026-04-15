@@ -1,0 +1,25 @@
+[
+  {
+    "name": "wayfinding_repeat",
+    "steps": [
+      {"text": "Where is the workshop room?", "expected_contains": "Workshop Room"},
+      {"text": "Can you repeat how to get there?", "expected_contains": "Workshop Room"}
+    ]
+  },
+  {
+    "name": "events_followup",
+    "steps": [
+      {"text": "What events are happening this week?", "expected_contains": "This week at the community center"},
+      {"text": "What time does the Robotics Workshop start?", "expected_contains": "Robotics Workshop starts"},
+      {"text": "What can you do here?", "expected_contains": "greet visitors"}
+    ]
+  },
+  {
+    "name": "feedback_and_escalation",
+    "steps": [
+      {"text": "I want to leave feedback.", "expected_contains": "three parts"},
+      {"text": "I need a human operator to help with a lost item.", "expected_contains": "human operator"},
+      {"text": "Where is the front desk?", "expected_contains": "Front Desk"}
+    ]
+  }
+]

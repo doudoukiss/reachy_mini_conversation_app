@@ -10,7 +10,8 @@ from pathlib import Path
 
 import gradio as gr
 
-from .config import LOCKED_PROFILE, AVAILABLE_VOICES, DEFAULT_PROFILES_DIRECTORY, config
+from .config import LOCKED_PROFILE, DEFAULT_PROFILES_DIRECTORY, config
+from .providers import get_backend_capabilities
 
 
 class PersonalityUI:
@@ -85,6 +86,7 @@ class PersonalityUI:
     # ---------- Public API ----------
     def create_components(self) -> None:
         """Instantiate Gradio components for the personality UI."""
+        capabilities = get_backend_capabilities()
         if LOCKED_PROFILE is not None:
             is_locked = True
             current_value: str = LOCKED_PROFILE
@@ -108,7 +110,12 @@ class PersonalityUI:
         self.person_name_tb = gr.Textbox(label="Personality name", interactive=not is_locked)
         self.person_instr_ta = gr.TextArea(label="Personality instructions", lines=10, interactive=not is_locked)
         self.tools_txt_ta = gr.TextArea(label="tools.txt", lines=10, interactive=not is_locked)
-        self.voice_dropdown = gr.Dropdown(label="Voice", choices=list(AVAILABLE_VOICES), value="cedar", interactive=not is_locked)
+        self.voice_dropdown = gr.Dropdown(
+            label="Voice",
+            choices=list(capabilities.fallback_voices),
+            value=capabilities.default_voice,
+            interactive=not is_locked,
+        )
         self.new_personality_btn = gr.Button("New personality", interactive=not is_locked)
         self.available_tools_cg = gr.CheckboxGroup(label="Available tools (helper)", choices=[], value=[], interactive=not is_locked)
         self.save_btn = gr.Button("Save personality (instructions + tools)", interactive=not is_locked)
@@ -145,26 +152,31 @@ class PersonalityUI:
             return status, preview
 
         def _read_voice_for(name: str) -> str:
+            capabilities = get_backend_capabilities()
             try:
                 if name == self.DEFAULT_OPTION:
-                    return "cedar"
+                    return capabilities.default_voice
                 vf = self._resolve_profile_dir(name) / "voice.txt"
                 if vf.exists():
                     v = vf.read_text(encoding="utf-8").strip()
-                    return v or "cedar"
+                    return v or capabilities.default_voice
             except Exception:
                 pass
-            return "cedar"
+            return capabilities.default_voice
 
         async def _fetch_voices(selected: str) -> dict[str, Any]:
+            capabilities = get_backend_capabilities()
             try:
                 voices = await handler.get_available_voices()
                 current = _read_voice_for(selected)
                 if current not in voices:
-                    current = "cedar"
+                    current = capabilities.default_voice
                 return gr.update(choices=voices, value=current)
             except Exception:
-                return gr.update(choices=list(AVAILABLE_VOICES), value="cedar")
+                return gr.update(
+                    choices=list(capabilities.fallback_voices),
+                    value=capabilities.default_voice,
+                )
 
         def _available_tools_for(selected: str) -> tuple[list[str], list[str]]:
             shared: list[str] = []
@@ -214,6 +226,7 @@ class PersonalityUI:
         def _new_personality() -> tuple[
             dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], str, dict[str, Any]
         ]:
+            capabilities = get_backend_capabilities()
             try:
                 # Prefill with hints
                 instr_val = """# Write your instructions here\n# e.g., Keep responses concise and friendly."""
@@ -224,7 +237,7 @@ class PersonalityUI:
                     gr.update(value=tools_txt_val),
                     gr.update(choices=sorted(_available_tools_for(self.DEFAULT_OPTION)[0]), value=[]),
                     "Fill in a name, instructions and (optional) tools, then Save.",
-                    gr.update(value="cedar"),
+                    gr.update(value=capabilities.default_voice),
                 )
             except Exception:
                 return (
@@ -239,6 +252,7 @@ class PersonalityUI:
         def _save_personality(
             name: str, instructions: str, tools_text: str, voice: str
         ) -> tuple[dict[str, Any], dict[str, Any], str]:
+            capabilities = get_backend_capabilities()
             name_s = self._sanitize_name(name)
             if not name_s:
                 return gr.update(), gr.update(), "Please enter a valid name."
@@ -247,7 +261,10 @@ class PersonalityUI:
                 target_dir.mkdir(parents=True, exist_ok=True)
                 (target_dir / "instructions.txt").write_text(instructions.strip() + "\n", encoding="utf-8")
                 (target_dir / "tools.txt").write_text(tools_text.strip() + "\n", encoding="utf-8")
-                (target_dir / "voice.txt").write_text((voice or "cedar").strip() + "\n", encoding="utf-8")
+                (target_dir / "voice.txt").write_text(
+                    (voice or capabilities.default_voice).strip() + "\n",
+                    encoding="utf-8",
+                )
 
                 choices = self._list_personalities()
                 value = f"user_personalities/{name_s}"

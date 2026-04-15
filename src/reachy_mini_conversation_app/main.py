@@ -45,10 +45,15 @@ def run(
     """Run the Reachy Mini conversation app."""
     # Putting these dependencies here makes the dashboard faster to load when the conversation app is installed
     from reachy_mini_conversation_app.moves import MovementManager
-    from reachy_mini_conversation_app.config import config, is_gemini_model
+    from reachy_mini_conversation_app.config import config
     from reachy_mini_conversation_app.console import LocalStream
     from reachy_mini_conversation_app.tools.core_tools import ToolDependencies
     from reachy_mini_conversation_app.audio.head_wobbler import HeadWobbler
+    from reachy_mini_conversation_app.providers import (
+        get_backend_capabilities,
+        get_backend_provider,
+        get_configured_api_key,
+    )
 
     logger = setup_logger(args.debug)
     logger.info("Starting Reachy Mini Conversation App")
@@ -127,11 +132,18 @@ def run(
     )
     logger.debug(f"Chatbot avatar images: {chatbot.avatar_images}")
 
-    if is_gemini_model():
+    provider = get_backend_provider()
+
+    if provider == "gemini":
         from reachy_mini_conversation_app.gemini_live import GeminiLiveHandler
 
         logger.info("Using Gemini Live handler for model: %s", config.MODEL_NAME)
         handler = GeminiLiveHandler(deps, gradio_mode=args.gradio, instance_path=instance_path)
+    elif provider == "ollama":
+        from reachy_mini_conversation_app.ollama_local import OllamaLocalHandler
+
+        logger.info("Using Ollama local handler for model: %s", config.MODEL_NAME)
+        handler = OllamaLocalHandler(deps, gradio_mode=args.gradio, instance_path=instance_path)
     else:
         from reachy_mini_conversation_app.openai_realtime import OpenaiRealtimeHandler
 
@@ -141,10 +153,12 @@ def run(
     stream_manager: gr.Blocks | LocalStream | None = None
 
     if args.gradio:
+        capabilities = get_backend_capabilities()
         api_key_textbox = gr.Textbox(
-            label="OPENAI API Key",
+            label=capabilities.api_key_label or "API Key",
             type="password",
-            value=os.getenv("OPENAI_API_KEY") if not get_space() else "",
+            value=get_configured_api_key() if not get_space() else "",
+            visible=capabilities.requires_api_key,
         )
 
         from reachy_mini_conversation_app.gradio_personality import PersonalityUI

@@ -1,0 +1,77 @@
+{
+  "show_name": "investor_neck_motion_v7",
+  "title": "Blink-AI Investor Neck Motion Proof V7",
+  "version": "v7",
+  "session_id": "investor-neck-motion-v7",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "neck_tilt_v7",
+      "title": "Conservative neck tilt proof",
+      "investor_claim": "This investor lane demonstrates neck tilt last and conservatively, using backed-off calibrated targets under one atomic body-range animation.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 48,
+      "cues": [
+        {
+          "cue_id": "neck_tilt_v7_caption",
+          "cue_kind": "caption",
+          "label": "Neck tilt V7 title",
+          "text": "Conservative neck tilt proof"
+        },
+        {
+          "cue_id": "neck_tilt_v7_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic neck tilt investor V7 motion run",
+          "payload": {
+            "sequence_name": "investor_neck_tilt_v7",
+            "preset_name": "investor_neck_protective_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "neck_tilt_v7_hold",
+          "cue_kind": "pause",
+          "label": "Neck tilt V7 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "neck_pitch_v7",
+      "title": "Conservative neck pitch proof",
+      "investor_claim": "This investor lane demonstrates neck pitch last and conservatively, using backed-off calibrated targets under one atomic body-range animation.",
+      "target_start_seconds": 48,
+      "target_duration_seconds": 48,
+      "cues": [
+        {
+          "cue_id": "neck_pitch_v7_caption",
+          "cue_kind": "caption",
+          "label": "Neck pitch V7 title",
+          "text": "Conservative neck pitch proof"
+        },
+        {
+          "cue_id": "neck_pitch_v7_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic neck pitch investor V7 motion run",
+          "payload": {
+            "sequence_name": "investor_neck_pitch_v7",
+            "preset_name": "investor_neck_protective_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "neck_pitch_v7_hold",
+          "cue_kind": "pause",
+          "label": "Neck pitch V7 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    }
+  ]
+}

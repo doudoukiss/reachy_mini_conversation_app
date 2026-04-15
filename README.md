@@ -14,7 +14,7 @@ tags:
 
 # Reachy Mini conversation app
 
-Conversational app for the Reachy Mini robot combining real-time voice APIs (OpenAI Realtime or Gemini Live), vision pipelines, and choreographed motion libraries.
+Conversational app for the Reachy Mini robot combining real-time voice APIs (OpenAI Realtime or Gemini Live), a fully local Ollama backend for macOS, vision pipelines, and choreographed motion libraries.
 
 ![Reachy Mini Dance](docs/assets/reachy_mini_dance.gif)
 
@@ -30,9 +30,13 @@ Conversational app for the Reachy Mini robot combining real-time voice APIs (Ope
 - [License](#license)
 
 ## Overview
-- Real-time audio conversation loop with `fastrtc` for low-latency streaming. Supports two backends:
+- Real-time audio conversation loop with `fastrtc` for low-latency streaming. Supports three backends:
   - **OpenAI Realtime** (`gpt-realtime`) — default
   - **Gemini Live** (`gemini-3.1-flash-live-preview`) — alternative, using the Google GenAI SDK
+- Fully local macOS backend using:
+  - **Ollama** for the multimodal LLM and tool calling
+  - **whisper.cpp** for speech-to-text
+  - **macOS `say`** for text-to-speech
 - Vision processing uses gpt-realtime by default (when camera tool is used), with optional on-device local vision using SmolVLM2 (CPU/GPU/MPS) via `--local-vision`.
 - Layered motion system queues primary moves (dances, emotions, goto poses, breathing) while blending speech-reactive wobble and head-tracking.
 - Async tool dispatch integrates robot motion, camera capture, and optional head-tracking capabilities through a Gradio web UI with live transcripts.
@@ -125,9 +129,14 @@ Some wheels (like PyTorch) are large and require compatible CUDA or CPU builds�
 
 | Variable | Description |
 |----------|-------------|
+| `BACKEND_PROVIDER` | Which backend family to use: `openai` (default), `gemini`, or `ollama`. |
 | `OPENAI_API_KEY` | Required for OpenAI mode. Grants access to the OpenAI realtime endpoint. |
 | `GEMINI_API_KEY` | Required for Gemini mode. Also accepts `GOOGLE_API_KEY`. Get one at [aistudio.google.com](https://aistudio.google.com/apikey). |
-| `MODEL_NAME` | Which backend to use. `gpt-realtime` (default) for OpenAI, or `gemini-3.1-flash-live-preview` for Gemini Live. |
+| `MODEL_NAME` | The provider-specific model name. Examples: `gpt-realtime`, `gemini-3.1-flash-live-preview`, or `qwen3.5:9b`. |
+| `OLLAMA_BASE_URL` | Ollama OpenAI-compatible API endpoint, used only with `BACKEND_PROVIDER="ollama"`. Defaults to `http://localhost:11434/v1/`. |
+| `WHISPER_CPP_BIN` | Path to `whisper-cli`, used only with `BACKEND_PROVIDER="ollama"`. |
+| `WHISPER_CPP_MODEL` | Path to the whisper.cpp model file, used only with `BACKEND_PROVIDER="ollama"`. |
+| `LOCAL_TTS_VOICE` | Preferred macOS `say` voice for local speech output. |
 | `HF_HOME` | Cache directory for local Hugging Face downloads (only used with `--local-vision` flag, defaults to `./cache`). |
 | `HF_TOKEN` | Optional token for Hugging Face access (for gated/private assets). |
 | `LOCAL_VISION_MODEL` | Hugging Face model path for local vision processing (only used with `--local-vision` flag, defaults to `HuggingFaceTB/SmolVLM2-2.2B-Instruct`). |
@@ -141,10 +150,53 @@ MODEL_NAME="gemini-3.1-flash-live-preview"
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-The app auto-selects the correct handler based on `MODEL_NAME`. All features (tools, profiles, head tracking) work with both backends.
+The app selects the correct handler based on `BACKEND_PROVIDER`. All features (tools, profiles, head tracking) continue to work with the cloud backends, and the local Ollama mode keeps the same UI/tool surface with turn-based local speech.
 
 > [!NOTE]
 > Gemini Live uses a different set of voices: Aoede, Charon, Fenrir, Kore (default), Leda, Orus, Puck, Zephyr. If your profile's `voice.txt` specifies an OpenAI voice, it will fall back to Kore.
+
+### Fully Local Ollama On macOS
+
+Use the setup helper to install the local dependencies:
+
+```bash
+./scripts/setup-local-mac.sh
+```
+
+Then configure `.env`:
+
+```env
+BACKEND_PROVIDER="ollama"
+MODEL_NAME="qwen3.5:9b"
+OLLAMA_BASE_URL="http://localhost:11434/v1/"
+WHISPER_CPP_BIN="./third_party/whisper.cpp/build/bin/whisper-cli"
+WHISPER_CPP_MODEL="./third_party/whisper.cpp/models/ggml-base.en.bin"
+LOCAL_TTS_VOICE="Samantha"
+```
+
+This path keeps LLM inference, speech recognition, speech synthesis, tool calling, and camera understanding on-device. Emotion tools are automatically hidden unless the emotion dataset is already cached locally.
+
+### Chinese language support
+
+Chinese support depends on which part of the local stack you are using:
+
+- **Chinese text chat**: supported in practice with the local Ollama backend when using `qwen3.5:9b`.
+- **Chinese voice input**: not reliable with the default `ggml-base.en.bin` whisper.cpp model, because that model is English-only.
+- **Chinese voice output**: possible only if your Mac has a Chinese `say` voice installed. Availability varies by macOS installation.
+
+If you want spoken Chinese to work locally, switch `WHISPER_CPP_MODEL` from the English-only model to a multilingual whisper.cpp model such as `ggml-base.bin` or a larger multilingual variant.
+
+Example:
+
+```env
+WHISPER_CPP_MODEL="./third_party/whisper.cpp/models/ggml-base.bin"
+```
+
+After that change:
+
+- spoken Chinese transcription should improve substantially
+- typed Chinese should continue to work
+- speech output in Chinese will still depend on which macOS voices are installed locally
 
 ## Running the app
 

@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blink-AI Operator Console</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260409-character-presence-shell" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Blink-AI Operator Console</h1>
+        <p>Live operator surface for the Mac brain, local companion runtime, and replayable demo stories.</p>
+      </div>
+      <details id="brain-status-panel" class="brain-status-panel">
+        <summary id="brain-status-toggle">
+          <span class="brain-status-heading">Brain Live Status</span>
+          <span id="brain-status-summary" class="subtle">Loading live runtime status...</span>
+        </summary>
+        <div class="status-grid">
+        <div class="status-chip">
+          <span class="label">Demo Profile</span>
+          <span id="demo-profile-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Dialogue</span>
+          <span id="dialogue-backend">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Voice</span>
+          <span id="voice-backend">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Perception</span>
+          <span id="perception-mode">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Provider</span>
+          <span id="provider-status-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Edge Link</span>
+          <span id="edge-link-state">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Body</span>
+          <span id="body-status-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">World Mode</span>
+          <span id="world-mode">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Shift State</span>
+          <span id="shift-state-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Safe Idle</span>
+          <span id="safe-idle-flag">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Frontends</span>
+          <span id="frontend-status-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Setup</span>
+          <span id="setup-status-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Auth Mode</span>
+          <span id="auth-mode-chip">-</span>
+        </div>
+        <div class="status-chip">
+          <span class="label">Native Devices</span>
+          <span id="native-devices-chip">-</span>
+        </div>
+        </div>
+      </details>
+    </header>
+
+    <main class="layout">
+      <section class="column controls">
+        <article class="panel">
+          <h2>Session Control</h2>
+          <label>Session ID <input id="session-id-input" placeholder="console-live" /></label>
+          <label>User ID <input id="user-id-input" placeholder="user-001" /></label>
+          <label>
+            Response Mode
+            <select id="response-mode-input">
+              <option value="guide">guide</option>
+              <option value="ambassador">ambassador</option>
+              <option value="debug">debug</option>
+            </select>
+          </label>
+          <div class="button-row">
+            <button id="create-session-btn">Create Session</button>
+            <button id="reset-runtime-btn" class="secondary">Reset Runtime</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Live Conversation</h2>
+          <label>
+            Voice Mode
+            <select id="voice-mode-input">
+              <option value="stub_demo">stub_demo</option>
+              <option value="macos_say">macos_say</option>
+              <option value="browser_live">browser_live</option>
+              <option value="browser_live_macos_say">browser_live_macos_say</option>
+            </select>
+          </label>
+          <div class="form-grid">
+            <label>
+              Browser Microphone
+              <select id="browser-microphone-input"></select>
+            </label>
+            <label id="browser-speaker-label">
+              Browser Speaker
+              <select id="browser-speaker-input"></select>
+            </label>
+          </div>
+          <div id="browser-device-note" class="subtle">
+            Browser microphone capture uses local browser devices. macOS `say` still follows the system default output device.
+          </div>
+          <label class="checkbox-row">
+            <input id="speak-reply-input" type="checkbox" checked />
+            <span>Speak reply when available</span>
+          </label>
+          <div class="live-state-card">
+            <div class="meta-row">
+              <strong>Live Loop</strong>
+              <span id="voice-state-pill" class="pill">Voice idle</span>
+            </div>
+            <div id="voice-state-detail" class="subtle">Typed input fallback is ready.</div>
+            <div id="voice-transcript-preview" class="preview-box">No live transcript yet.</div>
+            <div id="live-capability-note" class="subtle">Browser mic controls activate when a browser_live mode is selected.</div>
+            <div id="voice-howto-note" class="subtle">
+              To speak with the AI, switch Voice Mode to browser_live or browser_live_macos_say, then either hold Space to talk and release to send, or click Start Mic, speak, and click Stop Mic to submit.
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="start-listening-btn" class="secondary">Start Mic / PTT</button>
+            <button id="stop-listening-btn" class="secondary">Stop Mic</button>
+            <button id="cancel-voice-btn" class="secondary">Cancel Voice</button>
+          </div>
+          <div class="subtle">Push-to-talk shortcut: hold <strong>Space</strong> outside text fields when a browser_live mode is selected. When browser speech recognition is available, the console prefers that faster path. If it falls back to recorded audio, click Stop Mic to send the recorded speech.</div>
+          <label>User Input <textarea id="user-text-input" rows="4" placeholder="Type what you want Blink-AI to respond to..."></textarea></label>
+          <div class="button-row">
+            <button id="send-text-btn">Send Input</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Perception Inputs</h2>
+          <label>
+            Perception Mode
+            <select id="perception-mode-input">
+              <option value="stub">stub</option>
+              <option value="manual_annotations">manual_annotations</option>
+              <option value="ollama_vision">ollama_vision</option>
+              <option value="browser_snapshot">browser_snapshot</option>
+              <option value="multimodal_llm">multimodal_llm</option>
+            </select>
+          </label>
+          <label>
+            Browser Camera
+            <select id="browser-camera-input"></select>
+          </label>
+          <div id="browser-camera-device-note" class="subtle">
+            Browser camera capture uses `getUserMedia` and stays separate from the native desktop camera path.
+          </div>
+          <div class="button-row">
+            <button id="enable-camera-btn" class="secondary">Enable Camera</button>
+            <button id="disable-camera-btn" class="secondary">Disable Camera</button>
+            <button id="capture-snapshot-btn">Capture Snapshot</button>
+          </div>
+          <div class="button-row">
+            <button id="send-camera-cue-btn" class="secondary">Send Presence Cue</button>
+            <button id="submit-image-btn" class="secondary">Submit Selected Image</button>
+          </div>
+          <label>
+            Local Image Fixture
+            <input id="perception-image-input" type="file" accept="image/*" />
+          </label>
+          <div id="camera-status-note" class="subtle">Camera cue inactive.</div>
+          <video id="camera-preview" class="camera-preview hidden" autoplay playsinline muted></video>
+          <audio id="browser-output-preview" class="hidden" aria-hidden="true"></audio>
+        </article>
+
+        <article class="panel">
+          <h2>Manual Annotations</h2>
+          <div class="form-grid">
+            <label>People Count <input id="people-count-input" type="number" min="0" step="1" placeholder="1" /></label>
+            <label>
+              Engagement
+              <select id="engagement-input">
+                <option value="">-</option>
+                <option value="observing">observing</option>
+                <option value="approaching_robot">approaching_robot</option>
+                <option value="engaged">engaged</option>
+                <option value="disengaging">disengaging</option>
+              </select>
+            </label>
+          </div>
+          <label>Visible Text <input id="visible-text-input" placeholder="Check-In, Workshop Room ->" /></label>
+          <label>Named Objects <input id="named-objects-input" placeholder="welcome_banner, kiosk" /></label>
+          <label>Location Anchors <input id="location-anchors-input" placeholder="Front Desk, Welcome Area" /></label>
+          <label>Scene Summary <textarea id="scene-summary-input" rows="3" placeholder="One visitor is near the front desk sign."></textarea></label>
+          <div class="button-row">
+            <button id="submit-annotations-btn">Submit Annotations</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Fixture Replay</h2>
+          <label>
+            Replay Fixture
+            <select id="perception-fixture-input"></select>
+          </label>
+          <div class="button-row">
+            <button id="replay-fixture-btn">Replay Fixture</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Manual Event Injection</h2>
+          <div class="button-stack">
+            <button data-inject="person_detected">Inject person_detected</button>
+            <button data-inject="touch">Inject touch</button>
+            <button data-inject="low_battery" class="warning">Inject low_battery</button>
+            <button data-inject="heartbeat" class="warning">Inject degraded heartbeat</button>
+            <button id="force-safe-idle-btn" class="danger">Force Safe Idle / Stop</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Seeded Scenarios</h2>
+          <div id="scenario-buttons" class="button-stack"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Companion Stories</h2>
+          <div class="button-row">
+            <button id="run-local-companion-story-btn">Reset + Run Local Companion Story</button>
+            <button id="run-desktop-story-btn" class="secondary">Reset + Run Desktop Story</button>
+          </div>
+          <div id="scene-buttons" class="button-stack"></div>
+        </article>
+      </section>
+
+      <section class="column primary">
+        <article class="panel banner-panel">
+          <div id="action-banner" class="banner neutral">Console ready.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Character Presence Shell</h2>
+              <div class="subtle">Optional companion surface for the same terminal-first runtime. The terminal remains primary.</div>
+            </div>
+            <div class="button-row">
+              <a id="open-presence-shell-link" class="button-link secondary" href="/presence" target="_blank" rel="noreferrer">Open Shell</a>
+              <a id="open-performance-link" class="button-link secondary" href="/performance" target="_blank" rel="noreferrer">Open Performance</a>
+            </div>
+          </div>
+          <div id="presence-shell-summary" class="subtle">Waiting for character runtime state.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Current Session</h2>
+            <span id="active-session-pill" class="pill">No session selected</span>
+          </div>
+          <div id="current-session-card" class="session-list"></div>
+          <details class="fold-inline">
+            <summary>Other Sessions</summary>
+            <div id="sessions-list" class="session-list compact-list"></div>
+          </details>
+        </article>
+
+        <article class="panel grow">
+          <div class="panel-header">
+            <h2>Conversation</h2>
+            <span class="subtle">Meaningful turns only</span>
+          </div>
+          <div id="transcript-hidden-note" class="subtle">Low-signal internal events are hidden here by default.</div>
+          <div id="transcript-list" class="transcript-list"></div>
+        </article>
+
+        <details class="panel fold-panel">
+          <summary class="fold-summary">
+            <div>
+              <h2>Reasoning Trace</h2>
+              <div class="subtle">Advanced operator-visible reasoning and fallback detail</div>
+            </div>
+          </summary>
+          <div class="fold-body">
+            <div id="trace-list" class="trace-list"></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="column secondary">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Appliance Status</h2>
+            <span id="appliance-config-pill" class="pill">config: -</span>
+          </div>
+          <div id="appliance-status-summary" class="preview-box">No appliance status yet.</div>
+          <div class="subsection">
+            <h3>Setup Issues</h3>
+            <div id="setup-issue-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Native Device Health</h3>
+            <div id="device-health-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Local Companion Readiness</h2>
+            <span id="local-companion-readiness-pill" class="pill">readiness: -</span>
+          </div>
+          <div id="local-companion-readiness-summary" class="preview-box">No certification summary yet.</div>
+          <div class="subsection">
+            <h3>Readiness Issues</h3>
+            <div id="local-companion-readiness-issues" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Runtime Summary</h2>
+            <span id="demo-status-pill" class="pill">profile: -</span>
+          </div>
+          <div id="demo-status-summary" class="preview-box">No runtime snapshot yet.</div>
+          <div class="subsection">
+            <h3>Fallback Events</h3>
+            <div id="fallback-event-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Embodied Actions</h3>
+            <div id="embodied-action-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <details class="panel fold-panel">
+          <summary class="fold-summary">
+            <div>
+              <h2>Advanced Runtime Panels</h2>
+              <div class="subtle">World state, shift internals, routing, incidents, and body runtime</div>
+            </div>
+          </summary>
+          <div class="fold-body stacked-panels">
+        <article class="panel nested-panel">
+          <h2>World State</h2>
+          <pre id="world-state-json" class="json-block"></pre>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Shift Supervisor</h2>
+            <button id="run-shift-tick-btn" class="secondary">Run Tick</button>
+          </div>
+          <div id="shift-supervisor-summary" class="preview-box">Shift supervisor is idle.</div>
+          <pre id="shift-supervisor-json" class="json-block compact"></pre>
+          <div class="subsection">
+            <h3>Recent Shift Transitions</h3>
+            <div id="shift-transition-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Shift Metrics</h2>
+          <div id="shift-metrics-summary" class="preview-box">No shift metrics yet.</div>
+          <pre id="shift-metrics-json" class="json-block compact"></pre>
+          <div class="subsection">
+            <h3>Recent Pilot Shift Reports</h3>
+            <div id="shift-report-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Venue Operations</h2>
+          <div id="venue-ops-summary" class="preview-box">No venue operations pack loaded yet.</div>
+          <pre id="venue-ops-json" class="json-block compact"></pre>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Participant Router</h2>
+            <span id="participant-router-pill" class="pill">one_on_one</span>
+          </div>
+          <div id="participant-router-summary" class="preview-box">No participant routing state yet.</div>
+          <pre id="participant-router-json" class="json-block compact"></pre>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Incidents</h2>
+            <span id="incident-status-pill" class="pill">no_ticket</span>
+          </div>
+          <div id="incident-summary" class="preview-box">No incident ticket selected.</div>
+          <div class="subsection">
+            <h3>Open Tickets</h3>
+            <div id="open-incident-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Closed Tickets</h3>
+            <div id="closed-incident-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Selected Ticket</h3>
+            <label>Ticket ID <input id="incident-ticket-id-input" placeholder="inc-..." /></label>
+            <label>Operator / Staff <input id="incident-operator-input" placeholder="Jordan Lee" /></label>
+            <label>Incident Note <textarea id="incident-note-input" rows="3" placeholder="Acknowledged and heading to the front desk."></textarea></label>
+            <label>
+              Resolution Outcome
+              <select id="incident-resolution-input">
+                <option value="staff_assisted">staff_assisted</option>
+                <option value="remote_guidance">remote_guidance</option>
+                <option value="no_operator_available">no_operator_available</option>
+                <option value="visitor_cancelled">visitor_cancelled</option>
+                <option value="duplicate">duplicate</option>
+                <option value="unknown">unknown</option>
+              </select>
+            </label>
+            <div class="button-row">
+              <button id="incident-ack-btn" class="secondary">Acknowledge</button>
+              <button id="incident-assign-btn" class="secondary">Assign</button>
+            </div>
+            <div class="button-row">
+              <button id="incident-note-btn" class="secondary">Add Note</button>
+              <button id="incident-resolve-btn">Resolve / Close</button>
+            </div>
+          </div>
+          <div class="subsection">
+            <h3>Incident Timeline</h3>
+            <div id="incident-timeline-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>World Model</h2>
+            <span id="engagement-state-pill" class="pill">unknown</span>
+          </div>
+          <div id="world-model-summary" class="preview-box">No embodied world-model state yet.</div>
+          <pre id="world-model-json" class="json-block compact"></pre>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Body Runtime</h2>
+            <span id="body-driver-pill" class="pill">body: unknown</span>
+          </div>
+          <div class="form-grid">
+            <label>Body Port <input id="body-port-input" placeholder="/dev/cu.usbmodem..." /></label>
+            <label>Body Baud <input id="body-baud-input" type="number" min="1" step="1" placeholder="1000000" /></label>
+          </div>
+          <div class="button-row">
+            <button id="body-connect-btn">Connect</button>
+            <button id="body-disconnect-btn" class="secondary">Disconnect</button>
+            <button id="body-scan-btn" class="secondary">Scan</button>
+            <button id="body-ping-btn" class="secondary">Ping</button>
+            <button id="body-read-health-btn" class="secondary">Read Health</button>
+          </div>
+          <div class="form-grid">
+            <label>Arm TTL (s) <input id="body-arm-ttl-input" type="number" min="1" step="1" value="60" /></label>
+            <label>
+              Semantic Smoke
+              <select id="body-semantic-smoke-input">
+                <option value="look_left">look_left</option>
+                <option value="look_right">look_right</option>
+                <option value="look_up">look_up</option>
+                <option value="blink_soft">blink_soft</option>
+                <option value="listen_attentively">listen_attentively</option>
+                <option value="friendly">friendly</option>
+                <option value="thinking">thinking</option>
+                <option value="recover_neutral">recover_neutral</option>
+                <option value="safe_idle">safe_idle</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-grid">
+            <label>Semantic Intensity <input id="body-semantic-intensity-input" type="number" min="0" max="2" step="0.1" value="1.0" /></label>
+            <label>Repeat Count <input id="body-semantic-repeat-input" type="number" min="1" max="8" step="1" value="1" /></label>
+          </div>
+          <div class="button-row">
+            <button id="body-arm-btn">Arm</button>
+            <button id="body-disarm-btn" class="secondary">Disarm</button>
+            <button id="body-write-neutral-btn" class="secondary">Write Neutral</button>
+            <button id="body-semantic-smoke-btn" class="secondary">Run Semantic Smoke</button>
+            <button id="body-safe-idle-btn" class="danger">Safe Idle</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              Teacher Review
+              <select id="body-teacher-review-input">
+                <option value="good">good</option>
+                <option value="adjust">adjust</option>
+                <option value="bad">bad</option>
+              </select>
+            </label>
+            <label>Review Note <input id="body-teacher-note-input" placeholder="Optional bench note" /></label>
+          </div>
+          <div class="form-grid">
+            <label class="checkbox-label"><input id="body-apply-tuning-input" type="checkbox" /> Apply Tuning Delta</label>
+            <label>Tuning Delta JSON <input id="body-teacher-delta-input" placeholder='{"action_overrides":{"look_left":{"pose_offsets":{"eye_yaw":0.05}}}}' /></label>
+          </div>
+          <div class="button-row">
+            <button id="body-teacher-review-btn" class="secondary">Save Teacher Review</button>
+          </div>
+          <div class="subsection">
+            <h3>Servo Lab</h3>
+            <div class="form-grid">
+              <label>
+                Joint
+                <select id="servo-lab-joint-select"></select>
+              </label>
+              <label>
+                Reference Mode
+                <select id="servo-lab-reference-mode-input">
+                  <option value="current_delta">current_delta</option>
+                  <option value="neutral_delta">neutral_delta</option>
+                  <option value="absolute_raw">absolute_raw</option>
+                </select>
+              </label>
+            </div>
+            <div id="servo-lab-selection-summary" class="preview-box">No Servo Lab joint loaded yet.</div>
+            <div class="form-grid">
+              <label>Target Raw <input id="servo-lab-target-raw-input" type="number" step="1" /></label>
+              <label>Step Size <input id="servo-lab-step-size-input" type="number" step="1" value="20" /></label>
+            </div>
+            <div class="form-grid">
+              <label>Lab Min <input id="servo-lab-lab-min-input" type="number" step="1" /></label>
+              <label>Lab Max <input id="servo-lab-lab-max-input" type="number" step="1" /></label>
+            </div>
+            <div class="form-grid">
+              <label>Duration (ms) <input id="servo-lab-duration-input" type="number" min="0" step="10" value="600" /></label>
+              <label>Speed Override <input id="servo-lab-speed-override-input" type="number" min="0" step="1" placeholder="profile default" /></label>
+            </div>
+            <div class="form-grid">
+              <label>Acceleration Override <input id="servo-lab-acceleration-override-input" type="number" min="0" step="1" placeholder="transport default" /></label>
+              <label>Coupling Hint <input id="servo-lab-coupling-hint-input" disabled /></label>
+            </div>
+            <div class="button-row">
+              <button id="servo-lab-read-current-btn" class="secondary">Read Current</button>
+              <button id="servo-lab-move-btn">Move</button>
+              <button id="servo-lab-step-minus-btn" class="secondary">Step -</button>
+              <button id="servo-lab-step-plus-btn" class="secondary">Step +</button>
+            </div>
+            <div class="button-row">
+              <button id="servo-lab-go-min-btn" class="secondary">Go Min</button>
+              <button id="servo-lab-go-max-btn" class="secondary">Go Max</button>
+              <button id="servo-lab-go-neutral-btn" class="secondary">Go Neutral</button>
+              <button id="servo-lab-sweep-btn" class="secondary">Sweep Min↔Max</button>
+            </div>
+            <div class="button-row">
+              <button id="servo-lab-save-neutral-btn" class="secondary">Save Current as Neutral</button>
+              <button id="servo-lab-save-range-btn" class="secondary">Save Lab Range to Calibration</button>
+            </div>
+            <div id="servo-lab-status" class="preview-box">Mac Servo Lab not loaded yet.</div>
+            <div id="servo-lab-result" class="preview-box">No Servo Lab action yet.</div>
+            <pre id="servo-lab-json" class="json-block compact"></pre>
+          </div>
+          <div id="body-bench-status" class="preview-box">No body bench action yet.</div>
+          <div id="body-preview-summary" class="preview-box">No body preview available yet.</div>
+          <pre id="body-preview-json" class="json-block compact"></pre>
+        </article>
+          </div>
+        </details>
+
+        <article id="action-center-panel" class="panel">
+          <div class="panel-header">
+            <h2>Action Center</h2>
+            <span id="action-plane-pill" class="pill">action-plane: unknown</span>
+          </div>
+          <div id="action-plane-summary" class="preview-box">No Action Plane data yet.</div>
+          <div id="action-center-chips" class="action-center-grid"></div>
+          <div class="subsection">
+            <h3>Attention Queue</h3>
+            <div id="action-center-attention" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Detail Inspector</h3>
+            <div id="action-center-inspector-summary" class="preview-box">Select an approval, workflow, failure, or bundle to inspect it here.</div>
+            <div id="action-center-inspector-links" class="log-list compact-list"></div>
+            <div id="action-center-browser-preview" class="preview-box">Browser preview and artifacts will appear here when the selected item includes browser evidence.</div>
+            <img id="action-center-browser-screenshot" class="camera-preview hidden" alt="Action center browser preview" />
+            <div class="subsection">
+              <h4>Browser Targets</h4>
+              <div id="action-center-browser-targets" class="log-list compact-list"></div>
+            </div>
+            <pre id="action-center-inspector-json" class="json-block compact"></pre>
+          </div>
+          <div class="subsection">
+            <h3>Recent Action History</h3>
+            <div id="action-center-history" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Recent Bundles</h3>
+            <div id="action-center-bundles" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Latest Replays</h3>
+            <div id="action-center-replays" class="log-list compact-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Workflow Launcher</h3>
+            <div class="form-grid">
+              <label>
+                Workflow
+                <select id="workflow-start-id-input"></select>
+              </label>
+              <label>Workflow Note <input id="workflow-note-input" placeholder="Optional operator note" /></label>
+            </div>
+            <label>Workflow Inputs JSON <input id="workflow-inputs-input" placeholder='{"note_title":"Follow up","note_content":"Call Alice","reminder_text":"Call Alice tomorrow"}' /></label>
+            <div class="button-row">
+              <button id="workflow-start-btn">Start Workflow</button>
+            </div>
+            <div id="workflow-status" class="preview-box">No workflow activity yet.</div>
+            <div class="subsection">
+              <h4>Workflow Runs</h4>
+              <div id="workflow-runs" class="log-list"></div>
+            </div>
+          </div>
+          <div class="subsection">
+            <h3>Browser Operator</h3>
+            <div class="form-grid">
+              <label>
+                Browser Action
+                <select id="browser-task-action-input">
+                  <option value="open_url">open_url</option>
+                  <option value="capture_snapshot">capture_snapshot</option>
+                  <option value="extract_visible_text">extract_visible_text</option>
+                  <option value="summarize_page">summarize_page</option>
+                  <option value="find_click_targets">find_click_targets</option>
+                  <option value="click_target">click_target</option>
+                  <option value="type_text">type_text</option>
+                  <option value="submit_form">submit_form</option>
+                </select>
+              </label>
+              <label>Target URL <input id="browser-task-url-input" placeholder="https://example.com" /></label>
+            </div>
+            <div class="form-grid">
+              <label>Target Hint <input id="browser-task-target-hint-input" placeholder="Button label, field name, or placeholder" /></label>
+              <label>Text Input <input id="browser-task-text-input" placeholder="Only for type_text" /></label>
+            </div>
+            <div class="button-row">
+              <button id="browser-task-open-btn">Open URL</button>
+              <button id="browser-task-snapshot-btn" class="secondary">Capture Snapshot</button>
+              <button id="browser-task-find-btn" class="secondary">Find Targets</button>
+              <button id="browser-task-run-btn" class="secondary">Run Selected</button>
+            </div>
+            <div id="browser-task-status" class="preview-box">No browser runtime data yet.</div>
+            <div id="browser-task-preview-summary" class="preview-box">No pending browser preview.</div>
+            <img id="browser-task-screenshot" class="camera-preview hidden" alt="Browser snapshot" />
+            <div class="subsection">
+              <h4>Candidate Targets</h4>
+              <div id="browser-task-candidates" class="log-list"></div>
+            </div>
+            <pre id="browser-task-json" class="json-block compact"></pre>
+          </div>
+          <div class="subsection">
+            <h3>Connectors</h3>
+            <div id="action-plane-connectors" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Pending Approvals</h3>
+            <div id="action-plane-approvals" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Recent Action History</h3>
+            <div id="action-plane-history" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Action Flywheel</h3>
+            <div class="form-grid">
+              <label>Bundle ID <input id="bundle-review-id-input" placeholder="bundle id" /></label>
+              <label>
+                Review
+                <select id="bundle-review-value-input">
+                  <option value="needs_revision">needs_revision</option>
+                  <option value="good">good</option>
+                  <option value="unsafe">unsafe</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-grid">
+              <label>Action Feedback Labels <input id="bundle-action-feedback-input" placeholder="wrong_action_choice, missing_follow_up" /></label>
+              <label>Review Note <input id="bundle-review-note-input" placeholder="Optional bundle note" /></label>
+            </div>
+            <div class="button-row">
+              <button id="bundle-teacher-review-btn" class="secondary">Save Bundle Review</button>
+            </div>
+            <div id="action-flywheel-summary" class="preview-box">No action bundle data yet.</div>
+            <div id="action-benchmark-summary" class="preview-box">No action benchmark summaries yet.</div>
+            <div id="action-bundles" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Latest Perception</h2>
+            <span id="perception-status-pill" class="pill">Perception idle</span>
+          </div>
+          <div id="latest-perception-summary" class="preview-box">No perception snapshot yet.</div>
+          <pre id="latest-perception-json" class="json-block compact"></pre>
+        </article>
+
+        <details class="panel fold-panel">
+          <summary class="fold-summary">
+            <div>
+              <h2>Advanced Diagnostics and Exports</h2>
+              <div class="subtle">Perception history, replay inspection, telemetry, logs, and episode exports</div>
+            </div>
+          </summary>
+          <div class="fold-body stacked-panels">
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Executive Decisions</h2>
+            <span id="attention-target-pill" class="pill">attention: none</span>
+          </div>
+          <div id="executive-decision-list" class="log-list"></div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Perception History</h2>
+          <div id="perception-history" class="log-list"></div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Watcher Events</h2>
+          <div id="scene-observer-events" class="log-list"></div>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Replay Inspector</h2>
+            <span class="subtle">Frames, engagement, and action choice</span>
+          </div>
+          <div id="replay-source-summary" class="preview-box">No replay or snapshot selected yet.</div>
+          <div class="subsection">
+            <h3>Extracted Scene Facts</h3>
+            <div id="replay-facts-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Engagement Timeline</h3>
+            <div id="replay-engagement-timeline" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Final Chosen Action</h3>
+            <div id="replay-final-action" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Scene Scorecard</h3>
+            <div id="replay-scorecard-list" class="log-list"></div>
+          </div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Edge Telemetry</h2>
+          <pre id="telemetry-json" class="json-block"></pre>
+          <pre id="heartbeat-json" class="json-block compact"></pre>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Command Log</h2>
+          <div id="command-log" class="log-list"></div>
+        </article>
+
+        <article class="panel nested-panel">
+          <h2>Telemetry Log</h2>
+          <div id="telemetry-log" class="log-list"></div>
+        </article>
+
+        <article class="panel nested-panel">
+          <div class="panel-header">
+            <h2>Episode Exports</h2>
+            <span class="subtle">Training-ready multimodal bundles</span>
+          </div>
+          <div class="button-row">
+            <button id="export-session-episode-btn">Export Current Session</button>
+            <button id="export-latest-run-episode-btn" class="secondary">Export Latest Demo Run</button>
+          </div>
+          <div id="episode-list" class="log-list"></div>
+          <div class="subsection">
+            <h3>Teacher Mode</h3>
+            <div class="form-grid">
+              <label>Episode ID <input id="episode-teacher-target-input" placeholder="episode id" /></label>
+              <label>Trace ID <input id="trace-teacher-target-input" placeholder="trace id" /></label>
+            </div>
+            <div class="form-grid">
+              <label>Memory ID <input id="memory-teacher-target-input" placeholder="memory id" /></label>
+              <label>
+                Memory Layer
+                <select id="memory-layer-input">
+                  <option value="profile">profile</option>
+                  <option value="episodic">episodic</option>
+                  <option value="semantic">semantic</option>
+                  <option value="world">world</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-grid">
+              <label>Author <input id="teacher-author-input" value="operator_console" /></label>
+              <label>
+                Review
+                <select id="teacher-review-value-input">
+                  <option value="needs_revision">needs_revision</option>
+                  <option value="good">good</option>
+                  <option value="bad">bad</option>
+                </select>
+              </label>
+            </div>
+            <label>Label <input id="teacher-label-input" placeholder="scene_grounding, proactive_prompt, memory_importance" /></label>
+            <label>Note <textarea id="teacher-note-input" rows="3" placeholder="Operator review note"></textarea></label>
+            <label>Better Reply <textarea id="teacher-better-reply-input" rows="2" placeholder="Optional improved reply"></textarea></label>
+            <label>Corrected Scene Summary <textarea id="teacher-scene-correction-input" rows="2" placeholder="Optional scene correction"></textarea></label>
+            <div class="form-grid">
+              <label>Preferred Body Expression <input id="teacher-body-expression-input" placeholder="listening, reassuring" /></label>
+              <label>Outcome Label <input id="teacher-outcome-label-input" placeholder="completed, operator_handoff" /></label>
+            </div>
+            <label>Benchmark Tags <input id="teacher-benchmark-tags-input" placeholder="scene_grounding, memory_correctness" /></label>
+            <div class="button-row">
+              <button id="submit-episode-teacher-btn" class="secondary">Review Episode</button>
+              <button id="submit-trace-teacher-btn" class="secondary">Review Trace</button>
+            </div>
+            <div class="form-grid">
+              <label>Memory Updates (JSON) <textarea id="memory-updates-input" rows="3" placeholder='{"summary":"corrected value"}'></textarea></label>
+              <div class="button-stack">
+                <button id="review-memory-btn" class="secondary">Review Memory</button>
+                <button id="correct-memory-btn" class="secondary">Correct Memory</button>
+                <button id="delete-memory-btn" class="danger">Delete Memory</button>
+              </div>
+            </div>
+            <div id="teacher-annotation-list" class="log-list"></div>
+          </div>
+          <div class="subsection">
+            <h3>Benchmarks</h3>
+            <div class="form-grid">
+              <label>Episode ID <input id="benchmark-episode-id-input" placeholder="episode id" /></label>
+              <label>Families <input id="benchmark-families-input" placeholder="scene_grounding, memory_correctness" /></label>
+            </div>
+            <div class="button-row">
+              <button id="run-benchmarks-btn" class="secondary">Run Benchmarks</button>
+            </div>
+            <div id="benchmark-run-list" class="log-list"></div>
+          </div>
+          <pre id="episode-json" class="json-block compact"></pre>
+        </article>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <script src="/console/static/console.js?v=20260409-human-acceptance-polish" defer></script>
+  </body>
+</html>

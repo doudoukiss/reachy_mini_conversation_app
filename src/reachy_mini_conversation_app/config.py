@@ -163,12 +163,23 @@ class Config:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
     # Optional
+    BACKEND_PROVIDER = os.getenv("BACKEND_PROVIDER", "openai")
     MODEL_NAME = os.getenv("MODEL_NAME", "gpt-realtime")
+    OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1/")
+    WHISPER_CPP_BIN = os.getenv("WHISPER_CPP_BIN", "./third_party/whisper.cpp/build/bin/whisper-cli")
+    WHISPER_CPP_MODEL = os.getenv("WHISPER_CPP_MODEL", "./third_party/whisper.cpp/models/ggml-base.en.bin")
+    LOCAL_TTS_VOICE = os.getenv("LOCAL_TTS_VOICE")
     HF_HOME = os.getenv("HF_HOME", "./cache")
     LOCAL_VISION_MODEL = os.getenv("LOCAL_VISION_MODEL", "HuggingFaceTB/SmolVLM2-2.2B-Instruct")
     HF_TOKEN = os.getenv("HF_TOKEN")  # Optional, falls back to hf auth login if not set
 
-    logger.debug(f"Model: {MODEL_NAME}, HF_HOME: {HF_HOME}, Vision Model: {LOCAL_VISION_MODEL}")
+    logger.debug(
+        "Backend: %s, Model: %s, HF_HOME: %s, Vision Model: %s",
+        BACKEND_PROVIDER,
+        MODEL_NAME,
+        HF_HOME,
+        LOCAL_VISION_MODEL,
+    )
 
     # Filesystem root containing profile directories, not a Python import path.
     _profiles_directory_env = os.getenv("REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY")
@@ -182,6 +193,14 @@ class Config:
 
     def __init__(self) -> None:
         """Initialize the configuration."""
+        provider = self.BACKEND_PROVIDER.strip().lower()
+        if provider not in {"openai", "gemini", "ollama"}:
+            raise RuntimeError(
+                f"Config.__init__(): Unsupported BACKEND_PROVIDER {self.BACKEND_PROVIDER!r}. "
+                "Expected one of: openai, gemini, ollama."
+            )
+        self.BACKEND_PROVIDER = provider
+
         if self.REACHY_MINI_CUSTOM_PROFILE and self.PROFILES_DIRECTORY != DEFAULT_PROFILES_DIRECTORY:
             selected_profile_path = self.PROFILES_DIRECTORY / self.REACHY_MINI_CUSTOM_PROFILE
             if not selected_profile_path.is_dir():
@@ -244,8 +263,13 @@ config = Config()
 
 
 def is_gemini_model() -> bool:
-    """Return True if the configured MODEL_NAME is a Gemini Live model."""
-    return config.MODEL_NAME.lower().startswith("gemini")
+    """Return True if the configured backend provider is Gemini."""
+    return config.BACKEND_PROVIDER == "gemini"
+
+
+def is_ollama_provider() -> bool:
+    """Return True if the configured backend provider is Ollama."""
+    return config.BACKEND_PROVIDER == "ollama"
 
 
 def set_custom_profile(profile: str | None) -> None:

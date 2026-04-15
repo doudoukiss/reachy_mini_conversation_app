@@ -1,0 +1,47 @@
+{
+  "show_name": "investor_head_motion_v3",
+  "title": "Blink-AI Investor Head Motion Proof V3",
+  "version": "v3",
+  "session_id": "investor-head-motion-v3",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "head_motion_v3",
+      "title": "Focused head motion proof",
+      "investor_claim": "This investor lane isolates head yaw only and executes four large motions under one atomic body-range animation: max left, max right, strong left sweep, and strong right sweep.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 48,
+      "cues": [
+        {
+          "cue_id": "head_motion_v3_caption",
+          "cue_kind": "caption",
+          "label": "Head motion V3 title",
+          "text": "Focused head motion proof"
+        },
+        {
+          "cue_id": "head_motion_v3_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic head yaw investor V3 motion run",
+          "payload": {
+            "sequence_name": "investor_head_yaw_v3",
+            "preset_name": "servo_range_showcase_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "head_motion_v3_hold",
+          "cue_kind": "pause",
+          "label": "Head motion V3 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  {"text": "What hours are you open?", "expected_contains": "Monday through Friday"},
+  {"text": "Do you have wifi here?", "expected_contains": "Wi-Fi"},
+  {"text": "Where can I park?", "expected_contains": "parking"},
+  {"text": "Is the building accessible?", "expected_contains": "accessible"},
+  {"text": "Where are the restrooms?", "expected_contains": "restrooms"},
+  {"text": "Is there coffee here?", "expected_contains": "cafe"},
+  {"text": "How do I volunteer?", "expected_contains": "Volunteer"},
+  {"text": "Can I donate equipment?", "expected_contains": "Donations"},
+  {"text": "Where is the quiet room?", "expected_contains": "Quiet Room"},
+  {"text": "I want to leave feedback about an event.", "expected_contains": "event name"},
+  {"text": "What can you do for visitors?", "expected_contains": "greet visitors"},
+  {"text": "Can I talk to a staff member?", "expected_contains": "human operator"}
+]

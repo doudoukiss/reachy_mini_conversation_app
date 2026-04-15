@@ -1,0 +1,42 @@
+{
+  "fixture_name": "disengagement_clip",
+  "title": "Disengagement Clip Replay",
+  "description": "A short clip-style replay showing a visitor still present but beginning to disengage.",
+  "source_kind": "video_file_replay",
+  "frames": [
+    {
+      "frame_id": "disengage-0001",
+      "clip_offset_ms": 0,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 1,
+          "confidence": 0.91
+        },
+        {
+          "observation_type": "engagement_estimate",
+          "text_value": "engaged",
+          "confidence": 0.74
+        }
+      ],
+      "scene_summary": "A single visitor is still engaged with the robot."
+    },
+    {
+      "frame_id": "disengage-0002",
+      "clip_offset_ms": 1200,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 1,
+          "confidence": 0.9
+        },
+        {
+          "observation_type": "engagement_estimate",
+          "text_value": "disengaging",
+          "confidence": 0.82
+        }
+      ],
+      "scene_summary": "The visitor remains in view but appears ready to move on."
+    }
+  ]
+}

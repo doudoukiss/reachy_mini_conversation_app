@@ -17,6 +17,7 @@ from reachy_mini_conversation_app.config import DEFAULT_PROFILES_DIRECTORY as DE
 
 # Import config to ensure .env is loaded before reading REACHY_MINI_CUSTOM_PROFILE
 from reachy_mini_conversation_app.config import config  # noqa: F401
+from reachy_mini_conversation_app.providers import get_runtime_disabled_tools
 from reachy_mini_conversation_app.tools.tool_constants import SystemTool
 
 
@@ -197,6 +198,14 @@ def _load_profile_tools() -> None:
     # Add system tools
     tool_names.extend({tool.value for tool in SystemTool})
 
+    disabled_tools = get_runtime_disabled_tools()
+    if disabled_tools:
+        original_tool_names = list(tool_names)
+        tool_names = [name for name in tool_names if name not in disabled_tools]
+        removed = sorted(set(original_tool_names) - set(tool_names))
+        if removed:
+            logger.info("Skipping runtime-disabled tools: %s", removed)
+
     logger.info(f"Found {len(tool_names)} tools to load: {tool_names}")
 
     if config.AUTOLOAD_EXTERNAL_TOOLS and config.TOOLS_DIRECTORY and config.TOOLS_DIRECTORY.is_dir():
@@ -288,6 +297,23 @@ _initialize_tools()
 def get_tool_specs(exclusion_list: list[str] = []) -> list[Dict[str, Any]]:
     """Get tool specs, optionally excluding some tools."""
     return [spec for spec in ALL_TOOL_SPECS if spec.get("name") not in exclusion_list]
+
+
+def get_chat_tool_specs(exclusion_list: list[str] = []) -> list[Dict[str, Any]]:
+    """Get OpenAI Chat Completions tool specs."""
+    chat_specs: list[Dict[str, Any]] = []
+    for spec in get_tool_specs(exclusion_list):
+        chat_specs.append(
+            {
+                "type": "function",
+                "function": {
+                    "name": spec["name"],
+                    "description": spec["description"],
+                    "parameters": spec["parameters"],
+                },
+            },
+        )
+    return chat_specs
 
 
 # Dispatcher

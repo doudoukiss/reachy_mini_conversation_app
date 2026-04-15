@@ -1,0 +1,30 @@
+- key: hours
+  question: What are your opening hours?
+  answer: Demo Community Center is open Monday through Friday from 9 AM to 8 PM, and Saturday from 10 AM to 4 PM.
+  aliases: [hours, open, close, closing time]
+  tags: [hours, schedule]
+- key: wifi
+  question: Is guest Wi-Fi available?
+  answer: Guest Wi-Fi is available in the lobby, maker lab, and workshop room. The front desk can provide the current access code.
+  aliases: [wifi, wi-fi, internet, network password]
+  tags: [wifi, connectivity]
+- key: parking
+  question: Where should visitors park?
+  answer: Visitor parking is available in the east lot next to the main entrance, with two accessible spaces near the front desk doors.
+  aliases: [parking, park, where do i park, car]
+  tags: [parking, arrivals]
+- key: accessibility
+  question: What accessibility support is available?
+  answer: The building has ramp access at the main entrance, an elevator near the lobby, and accessible restrooms on the first floor.
+  aliases: [accessibility, wheelchair, elevator, accessible]
+  tags: [accessibility, support]
+- key: restrooms
+  question: Where are the restrooms?
+  answer: The main restrooms are on the first floor near the maker lab hallway.
+  aliases: [restroom, restrooms, bathroom, toilet]
+  tags: [restrooms]
+- key: cafe
+  question: Is there food on site?
+  answer: The community cafe is open until 6 PM and serves coffee, tea, and light snacks near the lobby seating area.
+  aliases: [cafe, coffee, snacks, food]
+  tags: [cafe]

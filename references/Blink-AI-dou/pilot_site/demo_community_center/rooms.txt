@@ -1,0 +1,7 @@
+# location_key|title|floor|directions|aliases|visible_signage|nearby_landmarks
+workshop_room|Workshop Room|Second floor|Take the main stairs, turn right, and use the third door on the left.|workshop room, robotics workshop room|Workshop Room, Robotics Workshop|stairs landing, maker banner
+front_desk|Front Desk|Lobby|Stay on the ground floor and walk straight ahead from the entrance.|front desk, reception, check in|Front Desk, Check-In|main entrance, lobby directory
+maker_lab|Maker Lab|First floor|Pass the cafe seating area and enter the glass room on the right.|maker lab, lab, prototyping room|Maker Lab, Youth Maker Night|cafe seating, glass room
+quiet_room|Quiet Room|Second floor|Take the elevator to the second floor and turn left at the mural wall.|quiet room, decompression room, break room|Quiet Room|mural wall, elevator
+restrooms|Main Restrooms|First floor|Walk past the maker lab hallway and follow the blue restroom signs.|restrooms, restroom, bathroom, toilet|Restrooms, Accessible Restroom|maker lab hallway, blue restroom signs
+cafe|Community Cafe|Lobby|Turn right from the entrance and head toward the open seating area.|cafe, coffee, snacks|Community Cafe|open seating area, menu board

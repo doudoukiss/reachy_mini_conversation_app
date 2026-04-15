@@ -15,6 +15,11 @@ if str(SRC_PATH) not in sys.path:
 # Without this, importing config during test collection can pick up a developer's
 # local .env and fail before tests run.
 os.environ["REACHY_MINI_SKIP_DOTENV"] = "1"
+os.environ["BACKEND_PROVIDER"] = "ollama"
 os.environ.pop("REACHY_MINI_CUSTOM_PROFILE", None)
 os.environ.pop("REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY", None)
 os.environ.pop("REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY", None)
+os.environ.pop("OLLAMA_BASE_URL", None)
+os.environ.pop("WHISPER_CPP_BIN", None)
+os.environ.pop("WHISPER_CPP_MODEL", None)
+os.environ.pop("LOCAL_TTS_VOICE", None)

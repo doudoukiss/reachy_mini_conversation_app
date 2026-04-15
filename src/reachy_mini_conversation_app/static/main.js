@@ -6,7 +6,7 @@ async function fetchStatus() {
     if (!resp.ok) throw new Error("status error");
     return await resp.json();
   } catch (e) {
-    return { has_key: false, error: true };
+    return { has_key: false, requires_api_key: true, error: true };
   }
 }
 
@@ -120,7 +120,7 @@ async function savePersonality(payload) {
     form.set("name", payload.name || "");
     form.set("instructions", payload.instructions || "");
     form.set("tools_text", payload.tools_text || "");
-    form.set("voice", payload.voice || "cedar");
+    form.set("voice", payload.voice || "");
     const url = new URL("/personalities/save_raw", window.location.origin);
     url.searchParams.set("_", Date.now().toString());
     resp = await fetchWithTimeout(url, {
@@ -137,7 +137,7 @@ async function savePersonality(payload) {
     url.searchParams.set("name", payload.name || "");
     url.searchParams.set("instructions", payload.instructions || "");
     url.searchParams.set("tools_text", payload.tools_text || "");
-    url.searchParams.set("voice", payload.voice || "cedar");
+    url.searchParams.set("voice", payload.voice || "");
     url.searchParams.set("_", Date.now().toString());
     resp = await fetchWithTimeout(url, { method: "GET" }, 5000);
     if (resp.ok) return await resp.json();
@@ -190,9 +190,16 @@ async function init() {
   const formPanel = document.getElementById("form-panel");
   const configuredPanel = document.getElementById("configured");
   const personalityPanel = document.getElementById("personality-panel");
+  const subtitle = document.querySelector(".subtitle");
+  const privacyNotice = document.querySelector(".privacy-notice");
   const saveBtn = document.getElementById("save-btn");
   const changeKeyBtn = document.getElementById("change-key-btn");
   const input = document.getElementById("api-key");
+  const formHeading = formPanel.querySelector("h2");
+  const formLabel = formPanel.querySelector("label[for='api-key']");
+  const formMuted = formPanel.querySelector(".muted");
+  const configuredHeading = configuredPanel.querySelector("h2");
+  const configuredMuted = configuredPanel.querySelector(".muted");
 
   // Personality elements
   const pSelect = document.getElementById("personality-select");
@@ -218,8 +225,36 @@ async function init() {
   show(configuredPanel, false);
   show(personalityPanel, false);
 
-  const st = (await waitForStatus()) || { has_key: false };
-  if (st.has_key) {
+  const st = (await waitForStatus()) || { has_key: false, requires_api_key: true };
+  const requiresApiKey = st.requires_api_key !== false;
+  const provider = st.provider || "openai";
+
+  if (provider === "ollama") {
+    if (subtitle) {
+      subtitle.textContent = "Run the local conversation backend, manage personalities, and avoid external LLM APIs.";
+    }
+    if (privacyNotice) {
+      privacyNotice.classList.add("hidden");
+    }
+  }
+
+  if (formHeading && st.api_key_label) {
+    formHeading.textContent = `Connect ${st.api_key_label.replace(" API Key", "")}`;
+  }
+  if (formLabel && st.api_key_label) {
+    formLabel.textContent = st.api_key_label;
+  }
+  if (formMuted && st.api_key_label) {
+    formMuted.textContent = `Paste your ${st.api_key_label.toLowerCase()} once and we will store it locally for the headless conversation loop.`;
+  }
+  if (configuredHeading && st.api_key_label) {
+    configuredHeading.textContent = `${st.api_key_label} ready`;
+  }
+  if (configuredMuted && st.api_key_label) {
+    configuredMuted.textContent = `${st.api_key_label} is already configured. You can jump straight to personalities.`;
+  }
+
+  if (st.has_key && requiresApiKey) {
     statusEl.textContent = "";
     show(configuredPanel, true);
   }
@@ -277,7 +312,11 @@ async function init() {
     }
   });
 
-  if (!st.has_key) {
+  if (!requiresApiKey) {
+    statusEl.textContent = "";
+    show(formPanel, false);
+    show(configuredPanel, false);
+  } else if (!st.has_key) {
     statusEl.textContent = "";
     show(formPanel, true);
     show(loading, false);
@@ -320,6 +359,7 @@ async function init() {
       pSelect.value = preferred;
     }
     const voices = await getVoices();
+    const defaultVoice = voices[0] || "cedar";
     pVoice.innerHTML = "";
     for (const v of voices) {
       const opt = document.createElement("option");
@@ -394,7 +434,7 @@ async function init() {
       const data = await loadPersonality(selected);
       pInstr.value = data.instructions || "";
       pTools.value = data.tools_text || "";
-      pVoice.value = data.voice || "cedar";
+      pVoice.value = data.voice || defaultVoice;
       // Available tools as checkboxes
       renderToolCheckboxes(data.available_tools, data.enabled_tools);
       attachToolHandlers();
@@ -447,7 +487,7 @@ async function init() {
       pAvail.querySelectorAll('input[type="checkbox"]').forEach((el) => {
         el.checked = false;
       });
-      pVoice.value = "cedar";
+      pVoice.value = defaultVoice;
       pStatus.textContent = "Fill fields and click Save.";
       pStatus.className = "status";
     });
@@ -468,7 +508,7 @@ async function init() {
           name,
           instructions: pInstr.value || "",
           tools_text: pTools.value || "",
-          voice: pVoice.value || "cedar",
+          voice: pVoice.value || defaultVoice,
         });
         // Refresh select choices
         pSelect.innerHTML = "";

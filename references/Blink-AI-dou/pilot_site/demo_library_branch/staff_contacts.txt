@@ -1,0 +1,4 @@
+# contact_key|name|role|phone|email|notes|aliases
+front_desk|Elena Park|Library Services Lead|555-0200|service@demo-library.org|Handles visitor check-in, printing, and general desk requests.|service desk, checkout
+accessibility|Noah Kim|Accessibility Support Librarian|555-0208|accessibility@demo-library.org|Supports low-vision, hearing-assistance, and accessible seating requests.|accessibility, large print, hearing assistance
+events|Priya Shah|Programs Librarian|555-0212|programs@demo-library.org|Handles Story Time, talks, and community-room programming questions.|events, programs, story time

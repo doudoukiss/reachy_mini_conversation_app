@@ -1,13 +1,4 @@
-"""Bidirectional local audio stream with optional settings UI.
-
-In headless mode, there is no Gradio UI. If the OpenAI API key is not
-available via environment/.env, we expose a minimal settings page via the
-Reachy Mini Apps settings server to let non-technical users enter it.
-
-The settings UI is served from this package's ``static/`` folder and offers a
-single password field to set ``OPENAI_API_KEY``. Once set, we persist it to the
-app instance's ``.env`` file (if available) and proceed to start streaming.
-"""
+"""Bidirectional local audio stream with optional settings UI."""
 
 import os
 import sys
@@ -22,7 +13,12 @@ from scipy.signal import resample
 
 from reachy_mini import ReachyMini
 from reachy_mini.media.media_manager import MediaBackend
-from reachy_mini_conversation_app.config import LOCKED_PROFILE, config, is_gemini_model
+from reachy_mini_conversation_app.config import LOCKED_PROFILE, config
+from reachy_mini_conversation_app.providers import (
+    get_backend_capabilities,
+    get_backend_provider,
+    get_configured_api_key,
+)
 from reachy_mini_conversation_app.openai_realtime import OpenaiRealtimeHandler
 from reachy_mini_conversation_app.headless_personality_ui import mount_personality_routes
 
@@ -31,6 +27,11 @@ try:
     from reachy_mini_conversation_app.gemini_live import GeminiLiveHandler
 except ImportError:
     GeminiLiveHandler = None  # type: ignore[misc,assignment]
+
+try:
+    from reachy_mini_conversation_app.ollama_local import OllamaLocalHandler
+except ImportError:
+    OllamaLocalHandler = None  # type: ignore[misc,assignment]
 
 # Union type for either handler
 RealtimeHandler = OpenaiRealtimeHandler  # default; overridden at runtime when Gemini
@@ -58,13 +59,13 @@ class LocalStream:
 
     def __init__(
         self,
-        handler: "OpenaiRealtimeHandler | GeminiLiveHandler",
+        handler: "OpenaiRealtimeHandler | GeminiLiveHandler | OllamaLocalHandler",
         robot: ReachyMini,
         *,
         settings_app: Optional[FastAPI] = None,
         instance_path: Optional[str] = None,
     ):
-        """Initialize the stream with an OpenAI realtime handler and pipelines.
+        """Initialize the stream with a conversation handler and media pipelines.
 
         - ``settings_app``: the Reachy Mini Apps FastAPI to attach settings endpoints.
         - ``instance_path``: directory where per-instance ``.env`` should be stored.
@@ -79,6 +80,14 @@ class LocalStream:
         self._instance_path: Optional[str] = instance_path
         self._settings_initialized = False
         self._asyncio_loop = None
+
+    def _requires_api_key(self) -> bool:
+        """Return whether the current provider requires an API key."""
+        return get_backend_capabilities().requires_api_key
+
+    def _configured_api_key(self) -> str:
+        """Return the current provider API key, if any."""
+        return get_configured_api_key().strip()
 
     # ---- Settings UI (only when API key is missing) ----
     def _read_env_lines(self, env_path: Path) -> list[str]:
@@ -119,9 +128,9 @@ class LocalStream:
         """Persist API key to environment and instance ``.env`` if possible.
 
         Behavior:
-        - Always sets ``OPENAI_API_KEY`` in process env and in-memory config.
+        - Always sets the provider-specific API key in process env and in-memory config.
         - Writes/updates ``<instance_path>/.env``:
-          * If ``.env`` exists, replaces/append OPENAI_API_KEY line.
+          * If ``.env`` exists, replaces/append the provider key line.
           * Else, copies template from ``<instance_path>/.env.example`` when present,
             otherwise falls back to the packaged template
             ``reachy_mini_conversation_app/.env.example``.
@@ -131,13 +140,20 @@ class LocalStream:
         k = (key or "").strip()
         if not k:
             return
+        capabilities = get_backend_capabilities()
+        env_name = capabilities.api_key_env_name
+        if env_name is None:
+            return
         # Update live process env and config so consumers see it immediately
         try:
-            os.environ["OPENAI_API_KEY"] = k
+            os.environ[env_name] = k
         except Exception:  # best-effort
             pass
         try:
-            config.OPENAI_API_KEY = k
+            if env_name == "GEMINI_API_KEY":
+                config.GEMINI_API_KEY = k
+            else:
+                config.OPENAI_API_KEY = k
         except Exception:
             pass
 
@@ -149,15 +165,15 @@ class LocalStream:
             lines = self._read_env_lines(env_path)
             replaced = False
             for i, ln in enumerate(lines):
-                if ln.strip().startswith("OPENAI_API_KEY="):
-                    lines[i] = f"OPENAI_API_KEY={k}"
+                if ln.strip().startswith(f"{env_name}="):
+                    lines[i] = f"{env_name}={k}"
                     replaced = True
                     break
             if not replaced:
-                lines.append(f"OPENAI_API_KEY={k}")
+                lines.append(f"{env_name}={k}")
             final_text = "\n".join(lines) + "\n"
             env_path.write_text(final_text, encoding="utf-8")
-            logger.info("Persisted OPENAI_API_KEY to %s", env_path)
+            logger.info("Persisted %s to %s", env_name, env_path)
 
             # Load the newly written .env into this process to ensure downstream imports see it
             try:
@@ -167,7 +183,7 @@ class LocalStream:
             except Exception:
                 pass
         except Exception as e:
-            logger.warning("Failed to persist OPENAI_API_KEY: %s", e)
+            logger.warning("Failed to persist %s: %s", env_name, e)
 
     def _persist_personality(self, profile: Optional[str]) -> None:
         """Persist the startup personality to the instance .env and config."""
@@ -264,8 +280,16 @@ class LocalStream:
         # GET /status -> whether key is set
         @self._settings_app.get("/status")
         def _status() -> JSONResponse:
-            has_key = bool(config.OPENAI_API_KEY and str(config.OPENAI_API_KEY).strip())
-            return JSONResponse({"has_key": has_key})
+            capabilities = get_backend_capabilities()
+            has_key = True if not capabilities.requires_api_key else bool(self._configured_api_key())
+            return JSONResponse(
+                {
+                    "has_key": has_key,
+                    "provider": get_backend_provider(),
+                    "requires_api_key": capabilities.requires_api_key,
+                    "api_key_label": capabilities.api_key_label,
+                },
+            )
 
         # GET /ready -> whether backend finished loading tools
         @self._settings_app.get("/ready")
@@ -293,6 +317,9 @@ class LocalStream:
             if not key:
                 return JSONResponse({"valid": False, "error": "empty_key"}, status_code=400)
 
+            if get_backend_provider() == "gemini":
+                return JSONResponse({"valid": True})
+
             # Try to validate by checking if we can fetch the models
             try:
                 import httpx
@@ -317,8 +344,7 @@ class LocalStream:
     def launch(self) -> None:
         """Start the recorder/player and run the async processing loops.
 
-        If the OpenAI key is missing, expose a tiny settings UI via the
-        Reachy Mini settings server to collect it before starting streams.
+        If the provider requires an API key, expose the settings UI until it is configured.
         """
         self._stop_event.clear()
 
@@ -333,10 +359,14 @@ class LocalStream:
                 if env_path.exists():
                     load_dotenv(dotenv_path=str(env_path), override=True)
                     # Update config with newly loaded values
-                    new_key = os.getenv("OPENAI_API_KEY", "").strip()
+                    new_key = self._configured_api_key()
                     if new_key:
                         try:
-                            config.OPENAI_API_KEY = new_key
+                            capabilities = get_backend_capabilities()
+                            if capabilities.api_key_env_name == "GEMINI_API_KEY":
+                                config.GEMINI_API_KEY = new_key
+                            else:
+                                config.OPENAI_API_KEY = new_key
                         except Exception:
                             pass
                     if LOCKED_PROFILE is None:
@@ -350,7 +380,7 @@ class LocalStream:
                 pass  # Instance .env loading is optional; continue with defaults
 
         # If key is still missing, try to download one from HuggingFace (OpenAI only)
-        if not is_gemini_model() and not (config.OPENAI_API_KEY and str(config.OPENAI_API_KEY).strip()):
+        if get_backend_provider() == "openai" and not self._configured_api_key():
             logger.info("OPENAI_API_KEY not set, attempting to download from HuggingFace...")
             try:
                 from gradio_client import Client
@@ -369,21 +399,16 @@ class LocalStream:
         self._init_settings_ui_if_needed()
 
         # If key is still missing -> wait until provided via the settings UI
-        _need_key = (is_gemini_model() and not (config.GEMINI_API_KEY and str(config.GEMINI_API_KEY).strip())) or (
-            not is_gemini_model() and not (config.OPENAI_API_KEY and str(config.OPENAI_API_KEY).strip())
-        )
+        capabilities = get_backend_capabilities()
+        _need_key = capabilities.requires_api_key and not self._configured_api_key()
         if _need_key:
-            key_name = "GEMINI_API_KEY" if is_gemini_model() else "OPENAI_API_KEY"
+            key_name = capabilities.api_key_env_name or "API_KEY"
             logger.warning("%s not found. Open the app settings page to enter it.", key_name)
             # Poll until the key becomes available (set via the settings UI)
             try:
                 while True:
-                    if is_gemini_model():
-                        if config.GEMINI_API_KEY and str(config.GEMINI_API_KEY).strip():
-                            break
-                    else:
-                        if config.OPENAI_API_KEY and str(config.OPENAI_API_KEY).strip():
-                            break
+                    if self._configured_api_key():
+                        break
                     time.sleep(0.2)
             except KeyboardInterrupt:
                 logger.info("Interrupted while waiting for API key.")
@@ -411,7 +436,7 @@ class LocalStream:
             except Exception:
                 pass
             self._tasks = [
-                asyncio.create_task(self.handler.start_up(), name="openai-handler"),
+                asyncio.create_task(self.handler.start_up(), name="conversation-handler"),
                 asyncio.create_task(self.record_loop(), name="stream-record-loop"),
                 asyncio.create_task(self.play_loop(), name="stream-play-loop"),
             ]

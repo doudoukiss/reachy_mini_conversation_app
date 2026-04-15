@@ -1,0 +1,15 @@
+- key: hours
+  question: What are your branch hours?
+  answer: Demo Library Branch is open Monday through Saturday from 10 AM to 6 PM.
+  aliases: [hours, open, close, branch hours]
+  tags: [hours, schedule]
+- key: printing
+  question: Can visitors print here?
+  answer: Self-service printing is available near the service desk, and staff can help with large-print jobs.
+  aliases: [printing, printer, print]
+  tags: [printing, services]
+- key: accessibility
+  question: What accessibility support is available?
+  answer: The branch offers elevator access, accessible seating, large-print materials, and staff support for low-vision or hearing-assistance requests.
+  aliases: [accessibility, low vision, hearing assistance, large print]
+  tags: [accessibility, support]

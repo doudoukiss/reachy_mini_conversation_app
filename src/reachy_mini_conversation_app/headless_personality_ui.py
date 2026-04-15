@@ -13,12 +13,14 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from fastapi import FastAPI
 
-from .config import LOCKED_PROFILE, AVAILABLE_VOICES, config
+from .config import LOCKED_PROFILE, config
 from .openai_realtime import OpenaiRealtimeHandler
+from .providers import get_backend_capabilities
 
 
 if TYPE_CHECKING:
     from .gemini_live import GeminiLiveHandler
+    from .ollama_local import OllamaLocalHandler
 from .headless_personality import (
     DEFAULT_OPTION,
     _sanitize_name,
@@ -32,7 +34,7 @@ from .headless_personality import (
 
 def mount_personality_routes(
     app: FastAPI,
-    handler: OpenaiRealtimeHandler | GeminiLiveHandler,
+    handler: OpenaiRealtimeHandler | GeminiLiveHandler | OllamaLocalHandler,
     get_loop: Callable[[], asyncio.AbstractEventLoop | None],
     *,
     persist_personality: Callable[[Optional[str]], None] | None = None,
@@ -50,7 +52,7 @@ def mount_personality_routes(
         name: str
         instructions: str
         tools_text: str
-        voice: Optional[str] = "cedar"
+        voice: Optional[str] = None
 
     class ApplyPayload(BaseModel):
         name: str
@@ -92,7 +94,7 @@ def mount_personality_routes(
     def _load(name: str) -> dict:  # type: ignore
         instr = read_instructions_for(name)
         tools_txt = ""
-        voice = "cedar"
+        voice = get_backend_capabilities().default_voice
         if name != DEFAULT_OPTION:
             pdir = resolve_profile_dir(name)
             tp = pdir / "tools.txt"
@@ -101,7 +103,7 @@ def mount_personality_routes(
             vf = pdir / "voice.txt"
             if vf.exists():
                 v = vf.read_text(encoding="utf-8").strip()
-                voice = v or "cedar"
+                voice = v or get_backend_capabilities().default_voice
         avail = available_tools_for(name)
         enabled = [ln.strip() for ln in tools_txt.splitlines() if ln.strip() and not ln.strip().startswith("#")]
         return {
@@ -122,7 +124,8 @@ def mount_personality_routes(
         name = str(raw.get("name", ""))
         instructions = str(raw.get("instructions", ""))
         tools_text = str(raw.get("tools_text", ""))
-        voice = str(raw.get("voice", "cedar")) if raw.get("voice") is not None else "cedar"
+        default_voice = get_backend_capabilities().default_voice
+        voice = str(raw.get("voice", default_voice)) if raw.get("voice") is not None else default_voice
 
         name_s = _sanitize_name(name)
         if not name_s:
@@ -135,7 +138,7 @@ def mount_personality_routes(
                 len(instructions),
                 len(tools_text),
             )
-            _write_profile(name_s, instructions, tools_text, voice or "cedar")
+            _write_profile(name_s, instructions, tools_text, voice or default_voice)
             value = f"user_personalities/{name_s}"
             choices = [DEFAULT_OPTION, *list_personalities()]
             return {"ok": True, "value": value, "choices": choices}
@@ -175,7 +178,7 @@ def mount_personality_routes(
             return JSONResponse({"ok": False, "error": "invalid_name"}, status_code=400)  # type: ignore
         instr = str(data.get("instructions") or "")
         tools = str(data.get("tools_text") or "")
-        v = str(data.get("voice") or "cedar")
+        v = str(data.get("voice") or get_backend_capabilities().default_voice)
         try:
             logger.info(
                 "Headless save_raw: name=%r voice=%r instr_len=%d tools_len=%d", name_s, v, len(instr), len(tools)
@@ -188,19 +191,20 @@ def mount_personality_routes(
             return JSONResponse({"ok": False, "error": str(e)}, status_code=500)  # type: ignore
 
     @app.get("/personalities/save_raw")
-    async def _save_raw_get(name: str, instructions: str = "", tools_text: str = "", voice: str = "cedar") -> dict:  # type: ignore
+    async def _save_raw_get(name: str, instructions: str = "", tools_text: str = "", voice: str | None = None) -> dict:  # type: ignore
         name_s = _sanitize_name(name)
         if not name_s:
             return JSONResponse({"ok": False, "error": "invalid_name"}, status_code=400)  # type: ignore
         try:
+            resolved_voice = voice or get_backend_capabilities().default_voice
             logger.info(
                 "Headless save_raw(GET): name=%r voice=%r instr_len=%d tools_len=%d",
                 name_s,
-                voice,
+                resolved_voice,
                 len(instructions),
                 len(tools_text),
             )
-            _write_profile(name_s, instructions, tools_text, voice or "cedar")
+            _write_profile(name_s, instructions, tools_text, resolved_voice)
             value = f"user_personalities/{name_s}"
             choices = [DEFAULT_OPTION, *list_personalities()]
             return {"ok": True, "value": value, "choices": choices}
@@ -276,16 +280,16 @@ def mount_personality_routes(
     async def _voices() -> list[str]:
         loop = get_loop()
         if loop is None:
-            return list(AVAILABLE_VOICES)
+            return list(get_backend_capabilities().fallback_voices)
 
         async def _get_v() -> list[str]:
             try:
                 return await handler.get_available_voices()
             except Exception:
-                return list(AVAILABLE_VOICES)
+                return list(get_backend_capabilities().fallback_voices)
 
         try:
             fut = asyncio.run_coroutine_threadsafe(_get_v(), loop)
             return fut.result(timeout=10)
         except Exception:
-            return list(AVAILABLE_VOICES)
+            return list(get_backend_capabilities().fallback_voices)

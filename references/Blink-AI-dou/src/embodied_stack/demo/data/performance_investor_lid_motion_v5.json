@@ -1,0 +1,137 @@
+{
+  "show_name": "investor_lid_motion_v5",
+  "title": "Blink-AI Investor Lid Motion Proof V5",
+  "version": "v5",
+  "session_id": "investor-lid-motion-v5",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "both_lids_v5",
+      "title": "Focused both-eye lid proof",
+      "investor_claim": "This investor lane demonstrates both-eye lid opening and closure as one expressive unit under one atomic body-range animation.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 20,
+      "cues": [
+        {
+          "cue_id": "both_lids_v5_caption",
+          "cue_kind": "caption",
+          "label": "Both lids V5 title",
+          "text": "Focused both-eye lid proof"
+        },
+        {
+          "cue_id": "both_lids_v5_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic both-eye lids investor V5 motion run",
+          "payload": {
+            "sequence_name": "investor_both_lids_v5",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "both_lids_v5_hold",
+          "cue_kind": "pause",
+          "label": "Both lids V5 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "left_eye_lids_v5",
+      "title": "Focused left-eye lid proof",
+      "investor_claim": "This investor lane demonstrates left-eye lid opening and closure as one expressive unit under one atomic body-range animation.",
+      "target_start_seconds": 20,
+      "target_duration_seconds": 20,
+      "cues": [
+        {
+          "cue_id": "left_eye_lids_v5_caption",
+          "cue_kind": "caption",
+          "label": "Left eye lids V5 title",
+          "text": "Focused left-eye lid proof"
+        },
+        {
+          "cue_id": "left_eye_lids_v5_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic left-eye lids investor V5 motion run",
+          "payload": {
+            "sequence_name": "investor_left_eye_lids_v5",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "left_eye_lids_v5_hold",
+          "cue_kind": "pause",
+          "label": "Left eye lids V5 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "right_eye_lids_v5",
+      "title": "Focused right-eye lid proof",
+      "investor_claim": "This investor lane demonstrates right-eye lid opening and closure as one expressive unit under one atomic body-range animation.",
+      "target_start_seconds": 40,
+      "target_duration_seconds": 20,
+      "cues": [
+        {
+          "cue_id": "right_eye_lids_v5_caption",
+          "cue_kind": "caption",
+          "label": "Right eye lids V5 title",
+          "text": "Focused right-eye lid proof"
+        },
+        {
+          "cue_id": "right_eye_lids_v5_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic right-eye lids investor V5 motion run",
+          "payload": {
+            "sequence_name": "investor_right_eye_lids_v5",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "right_eye_lids_v5_hold",
+          "cue_kind": "pause",
+          "label": "Right eye lids V5 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "blink_v5",
+      "title": "Focused blink proof",
+      "investor_claim": "This investor lane demonstrates full blink closure and a double blink under one atomic body-range animation.",
+      "target_start_seconds": 60,
+      "target_duration_seconds": 32,
+      "cues": [
+        {
+          "cue_id": "blink_v5_caption",
+          "cue_kind": "caption",
+          "label": "Blink V5 title",
+          "text": "Focused blink proof"
+        },
+        {
+          "cue_id": "blink_v5_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic blink investor V5 motion run",
+          "payload": {
+            "sequence_name": "investor_blink_v5",
+            "preset_name": "investor_show_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "blink_v5_hold",
+          "cue_kind": "pause",
+          "label": "Blink V5 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    }
+  ]
+}

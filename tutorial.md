@@ -12,6 +12,23 @@ If you want to build something similar yourself, the main idea is:
 
 This tutorial explains how this repo does that and how to recreate the same architecture from scratch.
 
+## Language Support Note
+
+If you build a similar project with a fully local backend, separate these three language questions:
+
+1. Can the LLM understand and answer the language?
+2. Can speech-to-text transcribe that language?
+3. Can text-to-speech speak that language naturally?
+
+In this project's current local macOS setup:
+
+- `qwen3.5:9b` can generally handle Chinese text well.
+- The default whisper.cpp model in the local setup is `ggml-base.en.bin`, which is English-only.
+- That means typed Chinese can work, but spoken Chinese will usually transcribe poorly until you switch to a multilingual Whisper model.
+- Chinese speech output also depends on whether macOS has a Chinese `say` voice installed.
+
+If you want proper Chinese voice support in a similar project, the clean first step is to swap the STT model from `ggml-base.en.bin` to a multilingual model such as `ggml-base.bin`.
+
 ## 1. What This Project Actually Contains
 
 At a high level, the repo is made of these subsystems:

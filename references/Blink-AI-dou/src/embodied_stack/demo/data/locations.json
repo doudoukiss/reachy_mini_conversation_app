@@ -1,0 +1,38 @@
+[
+  {
+    "location_key": "workshop_room",
+    "title": "Workshop Room",
+    "floor": "Second floor",
+    "directions": "Take the main stairs, turn right, and use the third door on the left."
+  },
+  {
+    "location_key": "front_desk",
+    "title": "Front Desk",
+    "floor": "Lobby",
+    "directions": "Stay on the ground floor and walk straight ahead from the entrance."
+  },
+  {
+    "location_key": "maker_lab",
+    "title": "Maker Lab",
+    "floor": "First floor",
+    "directions": "Pass the cafe seating area and enter the glass room on the right."
+  },
+  {
+    "location_key": "quiet_room",
+    "title": "Quiet Room",
+    "floor": "Second floor",
+    "directions": "Take the elevator to the second floor and turn left at the mural wall."
+  },
+  {
+    "location_key": "restrooms",
+    "title": "Main Restrooms",
+    "floor": "First floor",
+    "directions": "Walk past the maker lab hallway and follow the blue restroom signs."
+  },
+  {
+    "location_key": "cafe",
+    "title": "Community Cafe",
+    "floor": "Lobby",
+    "directions": "Turn right from the entrance and head toward the open seating area."
+  }
+]

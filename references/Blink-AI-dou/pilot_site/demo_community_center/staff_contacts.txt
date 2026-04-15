@@ -1,0 +1,4 @@
+# contact_key|name|role|phone|email|notes|aliases
+front_desk|Jordan Lee|Front Desk Coordinator|555-0100|frontdesk@demo-community.org|General visitor support, lost items, and lobby check-in.|front desk, reception, visitor support
+accessibility|Mina Patel|Accessibility Support Lead|555-0142|accessibility@demo-community.org|Call for accessible route questions, quiet-room support, and mobility accommodations.|accessibility, accessible route, wheelchair
+events|Sam Rivera|Programs Coordinator|555-0133|programs@demo-community.org|Handles event schedule changes and volunteer orientation questions.|events, programs, volunteer

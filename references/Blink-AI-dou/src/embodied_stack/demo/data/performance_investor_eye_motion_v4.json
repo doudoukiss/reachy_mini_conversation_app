@@ -1,0 +1,77 @@
+{
+  "show_name": "investor_eye_motion_v4",
+  "title": "Blink-AI Investor Eye Motion Proof V4",
+  "version": "v4",
+  "session_id": "investor-eye-motion-v4",
+  "defaults": {
+    "response_mode": "ambassador",
+    "proof_backend_mode": "deterministic_show",
+    "proof_voice_mode": "stub_demo",
+    "proof_speak_reply": false,
+    "narration_voice_mode": "stub_demo",
+    "language": "en",
+    "continue_on_error": true
+  },
+  "segments": [
+    {
+      "segment_id": "eye_yaw_v4",
+      "title": "Focused eye yaw proof",
+      "investor_claim": "This investor lane isolates horizontal eye motion only and executes a left-right range proof under one atomic body-range animation.",
+      "target_start_seconds": 0,
+      "target_duration_seconds": 48,
+      "cues": [
+        {
+          "cue_id": "eye_yaw_v4_caption",
+          "cue_kind": "caption",
+          "label": "Eye yaw V4 title",
+          "text": "Focused eye yaw proof"
+        },
+        {
+          "cue_id": "eye_yaw_v4_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic eye yaw investor V4 motion run",
+          "payload": {
+            "sequence_name": "investor_eye_yaw_v4",
+            "preset_name": "servo_range_showcase_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "eye_yaw_v4_hold",
+          "cue_kind": "pause",
+          "label": "Eye yaw V4 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    },
+    {
+      "segment_id": "eye_pitch_v4",
+      "title": "Focused eye pitch proof",
+      "investor_claim": "This investor lane isolates vertical eye motion only and executes a down-up range proof under one atomic body-range animation.",
+      "target_start_seconds": 48,
+      "target_duration_seconds": 48,
+      "cues": [
+        {
+          "cue_id": "eye_pitch_v4_caption",
+          "cue_kind": "caption",
+          "label": "Eye pitch V4 title",
+          "text": "Focused eye pitch proof"
+        },
+        {
+          "cue_id": "eye_pitch_v4_run",
+          "cue_kind": "body_range_demo",
+          "label": "Atomic eye pitch investor V4 motion run",
+          "payload": {
+            "sequence_name": "investor_eye_pitch_v4",
+            "preset_name": "servo_range_showcase_joint_envelope_v1"
+          }
+        },
+        {
+          "cue_id": "eye_pitch_v4_hold",
+          "cue_kind": "pause",
+          "label": "Eye pitch V4 settle hold",
+          "target_duration_ms": 2000
+        }
+      ]
+    }
+  ]
+}

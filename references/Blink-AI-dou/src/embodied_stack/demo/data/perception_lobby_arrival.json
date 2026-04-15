@@ -1,0 +1,56 @@
+{
+  "fixture_name": "lobby_arrival",
+  "title": "Lobby Arrival Replay",
+  "description": "A repeatable pre-hardware perception replay showing a visitor entering near the front desk signage.",
+  "frames": [
+    {
+      "frame_id": "lobby-0001",
+      "clip_offset_ms": 0,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 1,
+          "confidence": 0.94
+        },
+        {
+          "observation_type": "engagement_estimate",
+          "text_value": "approaching_robot",
+          "confidence": 0.78
+        },
+        {
+          "observation_type": "location_anchor",
+          "text_value": "Front Desk",
+          "confidence": 0.89
+        },
+        {
+          "observation_type": "visible_text",
+          "text_value": "Check-In",
+          "confidence": 0.82
+        }
+      ],
+      "scene_summary": "One visitor is visible near the front desk check-in sign and appears to be approaching the robot."
+    },
+    {
+      "frame_id": "lobby-0002",
+      "clip_offset_ms": 1200,
+      "annotations": [
+        {
+          "observation_type": "people_count",
+          "number_value": 2,
+          "confidence": 0.9
+        },
+        {
+          "observation_type": "named_object",
+          "text_value": "welcome_banner",
+          "confidence": 0.76
+        },
+        {
+          "observation_type": "location_anchor",
+          "text_value": "Welcome Area",
+          "confidence": 0.84
+        }
+      ],
+      "scene_summary": "A second person has entered the welcome area beside a visible welcome banner."
+    }
+  ]
+}

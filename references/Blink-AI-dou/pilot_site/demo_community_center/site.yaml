@@ -1,0 +1,82 @@
+site_name: Demo Community Center
+timezone: America/Los_Angeles
+summary: Community learning and maker venue used as Blink-AI's first pilot-site knowledge pack.
+hours_summary: Monday through Friday from 9 AM to 8 PM, and Saturday from 10 AM to 4 PM.
+operations:
+  opening_hours:
+    - days: [monday, tuesday, wednesday, thursday, friday]
+      start: "09:00"
+      end: "20:00"
+      label: weekday_shift
+    - days: [saturday]
+      start: "10:00"
+      end: "16:00"
+      label: saturday_shift
+  quiet_hours:
+    - days: [wednesday]
+      start: "13:00"
+      end: "14:00"
+      label: sensory_support_hour
+  closing_windows:
+    - days: [monday, tuesday, wednesday, thursday, friday]
+      start: "19:30"
+      end: "20:00"
+      label: weekday_closeout
+    - days: [saturday]
+      start: "15:30"
+      end: "16:00"
+      label: saturday_closeout
+  proactive_greeting_policy:
+    enabled: true
+    greeting_text: Hello and welcome to the Demo Community Center. I can help with rooms, today's programs, or a staff handoff.
+    returning_greeting_text: Welcome back, {name}. I can pick up where we left off or help with today's activities.
+    cooldown_seconds: 45
+    max_people_for_auto_greet: 3
+    suppress_during_quiet_hours: true
+  announcement_policy:
+    enabled: true
+    opening_prompt_text: Blink-AI is live for today's community center shift. I can help with rooms, programs, and staff support.
+    opening_prompt_window_minutes: 20
+    closing_prompt_text: The community center is closing soon. I can still help with quick directions or connect you to the front desk before we wrap up.
+    event_start_reminder_enabled: true
+    event_start_reminder_lead_minutes: 10
+    event_start_reminder_text: "Upcoming reminder: {event_title} starts soon in {location}."
+    proactive_suggestions:
+      - Hi there. I can help with directions, today's events, or a staff handoff.
+      - Need help finding a room, checking today's schedule, or reaching staff? I can help.
+    quiet_hours_suppressed: true
+  escalation_policy_overrides:
+    default_staff_contact_key: front_desk
+    accessibility_staff_contact_key: accessibility
+    keyword_rules:
+      - match_any: [lost item, found item]
+        reason_category: lost_item
+        urgency: normal
+        staff_contact_key: front_desk
+        note: Lost-item questions should route to the front desk workflow.
+      - match_any: [volunteer check-in, event sign-in, program help]
+        reason_category: event_support
+        urgency: normal
+        staff_contact_key: events
+        note: Program logistics should route to the programs coordinator.
+      - match_any: [unsafe, emergency, medical help]
+        reason_category: safety
+        urgency: critical
+        staff_contact_key: front_desk
+        note: Safety-sensitive requests should force visible staff escalation immediately.
+  accessibility_notes:
+    - Offer the elevator and quiet room path before stairs whenever mobility support is requested.
+    - Accessibility support is coordinated through Mina Patel and the quiet room.
+  fallback_instructions:
+    - scenario: safe_idle
+      visitor_message: I am holding a safe idle state right now while staff checks the system.
+      operator_note: Hold the robot near the front desk until the shift is cleared to resume.
+    - scenario: transport_outage
+      visitor_message: The venue link is degraded right now, so I may only be able to offer limited help until staff checks the connection.
+      operator_note: If transport stays degraded, keep Blink-AI near the front desk and use local staff support.
+    - scenario: operator_unavailable
+      visitor_message: No operator is immediately available for ticket {ticket_id}. Please stay near the front desk if you need urgent help.
+      operator_note: Use Jordan Lee or the front desk fallback if no operator accepts the handoff.
+    - scenario: after_hours
+      visitor_message: The community center is currently outside staffed visitor hours. Please check the posted schedule or return during open hours.
+      operator_note: Keep Blink-AI in quiet-hours mode outside the published opening hours.

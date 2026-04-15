@@ -1,0 +1,5 @@
+# location_key|title|floor|directions|aliases|visible_signage|nearby_landmarks
+front_desk|Service Desk|Lobby|Stay on the ground floor and head toward the main checkout counter.|service desk, front desk, checkout|Service Desk, Checkout|main entrance, returns slot
+reading_room|Reading Room|Second floor|Take the elevator up one floor and turn right at the quiet-study sign.|reading room, study room|Reading Room, Quiet Study|elevator, quiet-study sign
+community_room|Community Room|First floor|Walk past the service desk and follow the programs sign on the left.|community room, program room|Community Room, Programs|service desk, programs sign
+restrooms|Branch Restrooms|First floor|Follow the hallway past the service desk and look for the blue restroom signs.|restroom, restrooms, bathroom|Restrooms, Accessible Restroom|service desk hallway, blue restroom signs

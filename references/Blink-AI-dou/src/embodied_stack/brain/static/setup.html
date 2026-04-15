@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blink-AI Appliance Setup</title>
+    <link rel="stylesheet" href="/console/static/console.css?v=20260408-tokenless-appliance" />
+  </head>
+  <body>
+    <main class="page-shell login-shell">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Blink-AI</p>
+            <h1>Local Appliance Setup</h1>
+          </div>
+          <span class="subtle">Browser-first local runtime setup</span>
+        </div>
+        <div id="setup-banner" class="banner neutral">Loading local appliance status…</div>
+        <div id="setup-summary" class="preview-box">Waiting for runtime status.</div>
+        <div class="subsection">
+          <h2>Local Device Profile</h2>
+          <label>
+            Device Preset
+            <select id="device-preset-input">
+              <option value="internal_macbook">Prefer Internal MacBook Devices</option>
+              <option value="external_monitor">Prefer External Monitor Devices</option>
+            </select>
+          </label>
+          <label>
+            Native Microphone
+            <select id="microphone-device-input"></select>
+          </label>
+          <label>
+            Native Camera
+            <select id="camera-device-input"></select>
+          </label>
+          <label>
+            Speaker Routing
+            <select id="speaker-device-input">
+              <option value="system_default">System Default Output</option>
+            </select>
+          </label>
+          <div id="speaker-note" class="subtle">macOS `say` follows the current system default output device.</div>
+        </div>
+        <div class="subsection">
+          <h2>Setup Issues</h2>
+          <div id="setup-issue-list" class="log-list"></div>
+        </div>
+        <div class="button-row">
+          <button id="save-setup-btn">Save Appliance Profile</button>
+          <button id="open-console-btn" class="secondary">Open Console</button>
+        </div>
+      </section>
+    </main>
+    <script src="/console/static/setup.js?v=20260408-tokenless-appliance" defer></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+site_name: Demo Library Branch
+timezone: America/Los_Angeles
+summary: Quieter public-library pilot pack used to test low-noise operating policy and more restrained proactive behavior.
+hours_summary: Monday through Saturday from 10 AM to 6 PM.
+operations:
+  opening_hours:
+    - days: [monday, tuesday, wednesday, thursday, friday, saturday]
+      start: "10:00"
+      end: "18:00"
+      label: library_day
+  quiet_hours:
+    - days: [monday, tuesday, wednesday, thursday, friday, saturday]
+      start: "12:00"
+      end: "14:00"
+      label: study_quiet_window
+  closing_windows:
+    - days: [monday, tuesday, wednesday, thursday, friday, saturday]
+      start: "17:45"
+      end: "18:00"
+      label: library_closeout
+  proactive_greeting_policy:
+    enabled: true
+    greeting_text: Hello. Welcome to the Demo Library Branch. I can help with room locations, programs, or staff support.
+    returning_greeting_text: Welcome back, {name}. I can help you find a room or today's program schedule.
+    cooldown_seconds: 90
+    max_people_for_auto_greet: 1
+    suppress_during_quiet_hours: true
+  announcement_policy:
+    enabled: true
+    opening_prompt_window_minutes: 10
+    closing_prompt_text: The library will close soon. I can still help with quick directions before the branch wraps up.
+    event_start_reminder_enabled: true
+    event_start_reminder_lead_minutes: 5
+    event_start_reminder_text: "Reminder: {event_title} begins shortly in {location}."
+    proactive_suggestions:
+      - If you need a reading room, today's program, or accessibility support, I can help.
+    quiet_hours_suppressed: true
+  escalation_policy_overrides:
+    default_staff_contact_key: front_desk
+    accessibility_staff_contact_key: accessibility
+    keyword_rules:
+      - match_any: [hearing assistance, large print, low vision support]
+        reason_category: accessibility
+        urgency: high
+        staff_contact_key: accessibility
+        note: Accessibility-sensitive library requests should route directly to the accessibility desk.
+      - match_any: [event registration, story time check-in]
+        reason_category: event_support
+        urgency: normal
+        staff_contact_key: events
+        note: Programming questions should route to the library programs desk.
+  accessibility_notes:
+    - Keep spoken replies short and low-noise near the reading rooms.
+    - Offer elevator access and accessible seating before sending a visitor upstairs.
+  fallback_instructions:
+    - scenario: safe_idle
+      visitor_message: I am paused in a safe idle state right now while staff checks the system.
+      operator_note: Keep Blink-AI near the service desk if the branch is in quiet mode.
+    - scenario: transport_outage
+      visitor_message: My branch connection is degraded right now, so I may only be able to offer limited help until staff checks the link.
+      operator_note: During link outages, fall back to the service desk and printed directory signs.
+    - scenario: operator_unavailable
+      visitor_message: No operator is immediately available for ticket {ticket_id}. Please go to the service desk if you need urgent help.
+      operator_note: Use the service desk fallback when no operator accepts the handoff.
+    - scenario: after_hours
+      visitor_message: The library branch is currently outside staffed visitor hours. Please return during open hours for full assistance.
+      operator_note: Keep Blink-AI silent outside the library's staffed hours.
